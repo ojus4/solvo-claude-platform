@@ -1,83 +1,174 @@
-// app/page.tsx
-import Link from 'next/link'
+// =============================================================================
+// SOLVO — Root Layout
+// This wraps every single page on the platform.
+// =============================================================================
+import type { Metadata, Viewport } from 'next'
+import { Providers } from '@/components/providers'
+import '@/app/globals.css'
+import Link from "next/link";
 
-export default function BootstrapPage() {
+// ─── Default SEO Metadata ────────────────────────────────────────────────────
+export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
+  ),
+  title: {
+    template: '%s | SOLVO',
+    default: 'SOLVO — Find The Career You Were Built For',
+  },
+  description:
+    'Free psychometric assessment, skill library, and job market analysis for Indian students. Get your personalised career roadmap in minutes.',
+  keywords: [
+    'career guidance India',
+    'psychometric test free',
+    'career assessment',
+    'student career path',
+    'job market India',
+    'skill development',
+    'career roadmap',
+    'SOLVO',
+  ],
+  authors: [{ name: 'SOLVO' }],
+  creator: 'SOLVO',
+  publisher: 'SOLVO',
+
+  // Open Graph — social sharing preview
+  openGraph: {
+    type: 'website',
+    locale: 'en_IN',
+    url: process.env.NEXT_PUBLIC_SITE_URL,
+    siteName: 'SOLVO',
+    title: 'SOLVO — Find The Career You Were Built For',
+    description:
+      'Free psychometric assessment + personalised career roadmap for Indian students.',
+    images: [
+      {
+        url: '/images/og/og-default.png',
+        width: 1200,
+        height: 630,
+        alt: 'SOLVO — Career Guidance Platform',
+      },
+    ],
+  },
+
+  // Twitter / X card
+  twitter: {
+    card: 'summary_large_image',
+    title: 'SOLVO — Career Guidance for Students',
+    description: 'Free career assessment + personalised roadmap.',
+    images: ['/images/og/og-default.png'],
+  },
+
+  // Robots
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+
+  // Favicons
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon-16x16.png',
+    apple: '/apple-touch-icon.png',
+  },
+
+  // Manifest for PWA
+  manifest: '/site.webmanifest',
+}
+
+// ─── Viewport ────────────────────────────────────────────────────────────────
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,    // Allow zoom for accessibility
+  themeColor: '#1B4FFF',
+}
+
+// ─── Root Layout ─────────────────────────────────────────────────────────────
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center bg-white px-4">
-      <div className="max-w-lg w-full text-center space-y-6">
-
-        <div className="flex items-center justify-center gap-2 mb-8">
-          <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center">
-            <span className="text-white font-bold text-lg">S</span>
-          </div>
-          <span className="text-2xl font-bold text-gray-900">SOLVO</span>
-        </div>
-
-        <div className="bg-green-50 border border-green-200 rounded-lg px-6 py-4">
-          <div className="flex items-center justify-center gap-2 text-green-700">
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-            </svg>
-            <span className="font-semibold text-sm">Category A — Setup Complete</span>
-          </div>
-          <p className="text-green-600 text-sm mt-1">
-            Next.js, TypeScript, Tailwind, Supabase clients, middleware, and all dependencies are working.
-          </p>
-        </div>
-
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-left space-y-3">
-          <p className="text-sm font-semibold text-gray-700 mb-3">Category A checklist:</p>
-          {[
-            { done: true,  label: 'Next.js project initialised' },
-            { done: true,  label: 'All npm dependencies installed' },
-            { done: true,  label: 'TypeScript configured (strict mode)' },
-            { done: true,  label: 'Tailwind CSS configured with SOLVO brand tokens' },
-            { done: true,  label: 'Middleware protecting /dashboard and /admin routes' },
-            { done: true,  label: 'Auth system (login, signup, OAuth callback)' },
-            { done: true,  label: 'Hidden admin entry point (/access/[slug])' },
-            { done: true,  label: 'Supabase SQL schema deployed' },
-            { done: true,  label: '.env.local configured with Supabase keys' },
-            { done: false, label: 'Connect Vercel to GitHub and deploy' },
-            { done: false, label: 'Set yourself as super_admin in Supabase' },
-          ].map((item, i) => (
-            <div key={i} className="flex items-center gap-3">
-              <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${
-                item.done ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'
-              }`}>
-                {item.done ? (
-                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                ) : (
-                  <div className="w-1.5 h-1.5 rounded-full bg-gray-400" />
-                )}
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Google Analytics — only loads in production */}
+        {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID &&
+          process.env.NODE_ENV === 'production' && (
+            <>
+              <script
+                async
+                src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}`}
+              />
+              <script
+                dangerouslySetInnerHTML={{
+                  __html: `
+                    window.dataLayer = window.dataLayer || [];
+                    function gtag(){dataLayer.push(arguments);}
+                    gtag('js', new Date());
+                    gtag('config', '${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}', {
+                      page_path: window.location.pathname,
+                    });
+                  `,
+                }}
+              />
+            </>
+          )}
+      </head>
+      <body className="min-h-screen bg-white antialiased">
+        <Providers>
+          <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white sm:items-start mx-auto">
+            <div className="flex items-center gap-2">
+              <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center">
+                <span className="text-white font-bold text-lg">S</span>
               </div>
-              <span className={`text-sm ${item.done ? 'text-gray-700' : 'text-gray-500'}`}>
-                {item.label}
-              </span>
+              <span className="text-2xl font-bold text-gray-900">SOLVO</span>
             </div>
-          ))}
-        </div>
 
-        <div className="grid grid-cols-2 gap-3 pt-2">
-          <Link
-            href="/login"
-            className="flex items-center justify-center px-4 py-2.5 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-          >
-            Test Login
-          </Link>
-          <Link
-            href="/signup"
-            className="flex items-center justify-center px-4 py-2.5 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-          >
-            Test Signup
-          </Link>
-        </div>
+            <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left w-full">
+              <div className="bg-green-50 border border-green-200 rounded-lg px-6 py-4 w-full">
+                <p className="font-semibold text-green-700 text-sm">Category A — Setup Complete</p>
+                <p className="text-green-600 text-sm mt-1">
+                  Next.js, TypeScript, Tailwind, Supabase clients, middleware, and all dependencies are working.
+                </p>
+              </div>
 
-        <p className="text-xs text-gray-400 pt-4">
-          This placeholder will be replaced by the real landing page in Category K.
-        </p>
-      </div>
-    </main>
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-left w-full">
+                <p className="text-sm font-semibold text-gray-700 mb-3">Remaining steps:</p>
+                <p className="text-sm text-gray-500">• Connect Vercel to GitHub and deploy</p>
+                <p className="text-sm text-gray-500">• Set yourself as super_admin in Supabase</p>
+                <p className="text-xs text-gray-400 mt-3">This page will be replaced in Category K.</p>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-4 text-base font-medium sm:flex-row w-full">
+              <Link
+                className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:bg-black/[.04] md:w-[158px]"
+                href="/login"
+              >
+                Test Login
+              </Link>
+              <Link
+                className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:bg-black/[.04] md:w-[158px]"
+                href="/signup"
+              >
+                Test Signup
+              </Link>
+            </div>
+          </main>
+
+          {children}
+        </Providers>
+      </body>
+    </html>
   )
 }
+
