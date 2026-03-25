@@ -1,1 +1,300 @@
-{"nodes":[],"edges":[]}
+{
+"nodes": [
+{
+"id": "1",
+"type": "input",
+"data": {
+"label": "Start: Intro to Digital Marketing",
+"description": "Core concepts, customer journey, and marketing funnels.",
+"duration": "Week 1",
+"is_free_preview": true,
+"is_premium_locked": false,
+"resource_url": "https://learndigital.withgoogle.com/digitalgarage/course/digital-marketing"
+},
+"position": {
+"x": 250,
+"y": 0
+}
+},
+{
+"id": "2",
+"type": "default",
+"data": {
+"label": "Content Marketing Basics",
+"description": "Blogging, storytelling, and content creation strategies.",
+"duration": "Weeks 2-3",
+"is_free_preview": true,
+"is_premium_locked": false,
+"resource_url": "https://academy.hubspot.com/courses/content-marketing"
+},
+"position": {
+"x": 250,
+"y": 150
+}
+},
+{
+"id": "3",
+"type": "default",
+"data": {
+"label": "Social Media Marketing",
+"description": "Building communities on platforms like Instagram, LinkedIn, and X.",
+"duration": "Weeks 4-5",
+"is_free_preview": true,
+"is_premium_locked": false,
+"resource_url": "https://academy.hubspot.com/courses/social-media"
+},
+"position": {
+"x": 250,
+"y": 300
+}
+},
+{
+"id": "4",
+"type": "default",
+"data": {
+"label": "SEO Fundamentals",
+"description": "Keyword research, on-page optimization, and link building.",
+"duration": "Weeks 6-7",
+"is_free_preview": false,
+"is_premium_locked": true,
+"resource_url": "https://academy.hubspot.com/courses/seo-training"
+},
+"position": {
+"x": 250,
+"y": 450
+}
+},
+{
+"id": "5",
+"type": "default",
+"data": {
+"label": "Email Marketing",
+"description": "List building, segmentation, and automated drip campaigns.",
+"duration": "Weeks 8-9",
+"is_free_preview": false,
+"is_premium_locked": true
+},
+"position": {
+"x": 250,
+"y": 600
+}
+},
+{
+"id": "6",
+"type": "default",
+"data": {
+"label": "PPC & Google Ads",
+"description": "Search campaigns, bidding strategies, and quality score.",
+"duration": "Weeks 10-11",
+"is_free_preview": false,
+"is_premium_locked": true,
+"resource_url": "https://skillshop.exceedlms.com/student/catalog/list?category_ids=53-google-ads"
+},
+"position": {
+"x": 250,
+"y": 750
+}
+},
+{
+"id": "7",
+"type": "default",
+"data": {
+"label": "Social Media Ads",
+"description": "Meta Ads Manager, audience targeting, and creative testing.",
+"duration": "Weeks 12-13",
+"is_free_preview": false,
+"is_premium_locked": true
+},
+"position": {
+"x": 250,
+"y": 900
+}
+},
+{
+"id": "8",
+"type": "default",
+"data": {
+"label": "Web Analytics (GA4)",
+"description": "Tracking user behavior, setting up events, and reporting.",
+"duration": "Weeks 14-15",
+"is_free_preview": false,
+"is_premium_locked": true,
+"resource_url": "https://skillshop.exceedlms.com/student/catalog/list?category_ids=64-google-analytics-4"
+},
+"position": {
+"x": 250,
+"y": 1050
+}
+},
+{
+"id": "9",
+"type": "default",
+"data": {
+"label": "Conversion Rate Optimization",
+"description": "A/B testing, heatmaps, and landing page design.",
+"duration": "Weeks 16-17",
+"is_free_preview": false,
+"is_premium_locked": true
+},
+"position": {
+"x": 250,
+"y": 1200
+}
+},
+{
+"id": "10",
+"type": "default",
+"data": {
+"label": "Copywriting",
+"description": "Writing persuasive headlines, ad copy, and sales pages.",
+"duration": "Weeks 18-19",
+"is_free_preview": false,
+"is_premium_locked": true
+},
+"position": {
+"x": 250,
+"y": 1350
+}
+},
+{
+"id": "11",
+"type": "default",
+"data": {
+"label": "Affiliate & Influencer Marketing",
+"description": "Partnering with creators to expand brand reach.",
+"duration": "Weeks 20-21",
+"is_free_preview": false,
+"is_premium_locked": true
+},
+"position": {
+"x": 250,
+"y": 1500
+}
+},
+{
+"id": "12",
+"type": "default",
+"data": {
+"label": "Marketing Strategy",
+"description": "Budgeting, media planning, and cross-channel integration.",
+"duration": "Weeks 22-23",
+"is_free_preview": false,
+"is_premium_locked": true
+},
+"position": {
+"x": 250,
+"y": 1650
+}
+},
+{
+"id": "13",
+"type": "default",
+"data": {
+"label": "Capstone Campaign",
+"description": "Launch and manage a mock or real integrated campaign.",
+"duration": "Weeks 24-25",
+"is_free_preview": false,
+"is_premium_locked": true
+},
+"position": {
+"x": 250,
+"y": 1800
+}
+},
+{
+"id": "14",
+"type": "output",
+"data": {
+"label": "Job Ready: Digital Marketer",
+"description": "Portfolio creation, certifications, and interview prep.",
+"duration": "Week 26",
+"is_free_preview": false,
+"is_premium_locked": true
+},
+"position": {
+"x": 250,
+"y": 1950
+}
+}
+],
+"edges": [
+{
+"id": "e1-2",
+"source": "1",
+"target": "2",
+"animated": true
+},
+{
+"id": "e2-3",
+"source": "2",
+"target": "3",
+"animated": true
+},
+{
+"id": "e3-4",
+"source": "3",
+"target": "4",
+"animated": true
+},
+{
+"id": "e4-5",
+"source": "4",
+"target": "5",
+"animated": true
+},
+{
+"id": "e5-6",
+"source": "5",
+"target": "6",
+"animated": true
+},
+{
+"id": "e6-7",
+"source": "6",
+"target": "7",
+"animated": true
+},
+{
+"id": "e7-8",
+"source": "7",
+"target": "8",
+"animated": true
+},
+{
+"id": "e8-9",
+"source": "8",
+"target": "9",
+"animated": true
+},
+{
+"id": "e9-10",
+"source": "9",
+"target": "10",
+"animated": true
+},
+{
+"id": "e10-11",
+"source": "10",
+"target": "11",
+"animated": true
+},
+{
+"id": "e11-12",
+"source": "11",
+"target": "12",
+"animated": true
+},
+{
+"id": "e12-13",
+"source": "12",
+"target": "13",
+"animated": true
+},
+{
+"id": "e13-14",
+"source": "13",
+"target": "14",
+"animated": true
+}
+]
+}

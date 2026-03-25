@@ -1,1 +1,297 @@
-{"nodes":[],"edges":[]}
+{
+"nodes": [
+{
+"id": "1",
+"type": "input",
+"data": {
+"label": "Start: Intro to Computer Science",
+"description": "Understanding how computers work, memory, and basic logic.",
+"duration": "Weeks 1-2",
+"is_free_preview": true,
+"is_premium_locked": false,
+"resource_url": "https://pll.harvard.edu/course/cs50-introduction-computer-science"
+},
+"position": {
+"x": 250,
+"y": 0
+}
+},
+{
+"id": "2",
+"type": "default",
+"data": {
+"label": "Version Control (Git/GitHub)",
+"description": "Managing code changes, branching, and collaborating with others.",
+"duration": "Week 3",
+"is_free_preview": true,
+"is_premium_locked": false,
+"resource_url": "https://www.freecodecamp.org/learn/relational-database/learn-git-by-building-a-sql-reference-object/build-a-sql-reference-object"
+},
+"position": {
+"x": 250,
+"y": 150
+}
+},
+{
+"id": "3",
+"type": "default",
+"data": {
+"label": "Programming Fundamentals",
+"description": "Deep dive into a core language (e.g., Python, Java, or C++).",
+"duration": "Weeks 4-6",
+"is_free_preview": true,
+"is_premium_locked": false,
+"resource_url": "https://www.freecodecamp.org/learn/javascript-algorithms-and-data-structures-v8/"
+},
+"position": {
+"x": 250,
+"y": 300
+}
+},
+{
+"id": "4",
+"type": "default",
+"data": {
+"label": "Data Structures",
+"description": "Arrays, Linked Lists, Stacks, Queues, Trees, and Graphs.",
+"duration": "Weeks 7-8",
+"is_free_preview": false,
+"is_premium_locked": true
+},
+"position": {
+"x": 250,
+"y": 450
+}
+},
+{
+"id": "5",
+"type": "default",
+"data": {
+"label": "Algorithms",
+"description": "Sorting, searching, recursion, and Big O time/space complexity.",
+"duration": "Weeks 9-10",
+"is_free_preview": false,
+"is_premium_locked": true
+},
+"position": {
+"x": 250,
+"y": 600
+}
+},
+{
+"id": "6",
+"type": "default",
+"data": {
+"label": "Object-Oriented Design",
+"description": "Classes, inheritance, polymorphism, and design patterns.",
+"duration": "Weeks 11-12",
+"is_free_preview": false,
+"is_premium_locked": true
+},
+"position": {
+"x": 250,
+"y": 750
+}
+},
+{
+"id": "7",
+"type": "default",
+"data": {
+"label": "Relational Databases & SQL",
+"description": "Table design, normal forms, indexing, and writing complex queries.",
+"duration": "Weeks 13-14",
+"is_free_preview": false,
+"is_premium_locked": true
+},
+"position": {
+"x": 250,
+"y": 900
+}
+},
+{
+"id": "8",
+"type": "default",
+"data": {
+"label": "APIs and Web Architecture",
+"description": "RESTful services, HTTP protocols, JSON, and client-server model.",
+"duration": "Weeks 15-16",
+"is_free_preview": false,
+"is_premium_locked": true
+},
+"position": {
+"x": 250,
+"y": 1050
+}
+},
+{
+"id": "9",
+"type": "default",
+"data": {
+"label": "Backend Frameworks",
+"description": "Building servers with Node.js/Express, Spring Boot, or Django.",
+"duration": "Weeks 17-18",
+"is_free_preview": false,
+"is_premium_locked": true
+},
+"position": {
+"x": 250,
+"y": 1200
+}
+},
+{
+"id": "10",
+"type": "default",
+"data": {
+"label": "Frontend Integration",
+"description": "Connecting APIs to user interfaces using React, Vue, or Angular.",
+"duration": "Weeks 19-20",
+"is_free_preview": false,
+"is_premium_locked": true
+},
+"position": {
+"x": 250,
+"y": 1350
+}
+},
+{
+"id": "11",
+"type": "default",
+"data": {
+"label": "Testing & QA",
+"description": "Unit testing, integration testing, and Test-Driven Development (TDD).",
+"duration": "Weeks 21-22",
+"is_free_preview": false,
+"is_premium_locked": true
+},
+"position": {
+"x": 250,
+"y": 1500
+}
+},
+{
+"id": "12",
+"type": "default",
+"data": {
+"label": "CI/CD & Deployment",
+"description": "Docker, GitHub Actions, and deploying to AWS, GCP, or Azure.",
+"duration": "Weeks 23-24",
+"is_free_preview": false,
+"is_premium_locked": true
+},
+"position": {
+"x": 250,
+"y": 1650
+}
+},
+{
+"id": "13",
+"type": "default",
+"data": {
+"label": "Capstone Project",
+"description": "Build and deploy a full-stack application to your portfolio.",
+"duration": "Week 25",
+"is_free_preview": false,
+"is_premium_locked": true
+},
+"position": {
+"x": 250,
+"y": 1800
+}
+},
+{
+"id": "14",
+"type": "output",
+"data": {
+"label": "Job Ready: Junior Software Engineer",
+"description": "LeetCode practice, system design basics, and mock interviews.",
+"duration": "Week 26",
+"is_free_preview": false,
+"is_premium_locked": true
+},
+"position": {
+"x": 250,
+"y": 1950
+}
+}
+],
+"edges": [
+{
+"id": "e1-2",
+"source": "1",
+"target": "2",
+"animated": true
+},
+{
+"id": "e2-3",
+"source": "2",
+"target": "3",
+"animated": true
+},
+{
+"id": "e3-4",
+"source": "3",
+"target": "4",
+"animated": true
+},
+{
+"id": "e4-5",
+"source": "4",
+"target": "5",
+"animated": true
+},
+{
+"id": "e5-6",
+"source": "5",
+"target": "6",
+"animated": true
+},
+{
+"id": "e6-7",
+"source": "6",
+"target": "7",
+"animated": true
+},
+{
+"id": "e7-8",
+"source": "7",
+"target": "8",
+"animated": true
+},
+{
+"id": "e8-9",
+"source": "8",
+"target": "9",
+"animated": true
+},
+{
+"id": "e9-10",
+"source": "9",
+"target": "10",
+"animated": true
+},
+{
+"id": "e10-11",
+"source": "10",
+"target": "11",
+"animated": true
+},
+{
+"id": "e11-12",
+"source": "11",
+"target": "12",
+"animated": true
+},
+{
+"id": "e12-13",
+"source": "12",
+"target": "13",
+"animated": true
+},
+{
+"id": "e13-14",
+"source": "13",
+"target": "14",
+"animated": true
+}
+]
+}

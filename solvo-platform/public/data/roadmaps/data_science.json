@@ -1,1 +1,322 @@
-{"nodes":[],"edges":[]}
+{
+"nodes": [
+{
+"id": "1",
+"type": "input",
+"data": {
+"label": "Start: Intro to Data Science",
+"description": "Overview of the data science lifecycle, roles, and core tools.",
+"duration": "Week 1",
+"is_free_preview": true,
+"is_premium_locked": false,
+"resource_url": "https://www.kaggle.com/learn/intro-to-programming"
+},
+"position": {
+"x": 250,
+"y": 0
+}
+},
+{
+"id": "2",
+"type": "default",
+"data": {
+"label": "Python for Data Science",
+"description": "Variables, data structures, loops, and functions in Python.",
+"duration": "Weeks 2-3",
+"is_free_preview": true,
+"is_premium_locked": false,
+"resource_url": "https://www.freecodecamp.org/learn/scientific-computing-with-python/"
+},
+"position": {
+"x": 250,
+"y": 150
+}
+},
+{
+"id": "3",
+"type": "default",
+"data": {
+"label": "Math & Statistics Basics",
+"description": "Linear algebra basics, descriptive statistics, and probability.",
+"duration": "Weeks 4-5",
+"is_free_preview": true,
+"is_premium_locked": false,
+"resource_url": "https://www.khanacademy.org/math/statistics-probability"
+},
+"position": {
+"x": 250,
+"y": 300
+}
+},
+{
+"id": "4",
+"type": "default",
+"data": {
+"label": "Data Manipulation",
+"description": "Using Pandas and NumPy for cleaning and transforming data.",
+"duration": "Weeks 6-7",
+"is_free_preview": false,
+"is_premium_locked": true,
+"resource_url": "https://www.kaggle.com/learn/pandas"
+},
+"position": {
+"x": 250,
+"y": 450
+}
+},
+{
+"id": "5",
+"type": "default",
+"data": {
+"label": "Data Visualization",
+"description": "Creating charts and graphs using Matplotlib and Seaborn.",
+"duration": "Weeks 8-9",
+"is_free_preview": false,
+"is_premium_locked": true,
+"resource_url": "https://www.kaggle.com/learn/data-visualization"
+},
+"position": {
+"x": 250,
+"y": 600
+}
+},
+{
+"id": "6",
+"type": "default",
+"data": {
+"label": "Exploratory Data Analysis",
+"description": "Discovering patterns, spotting anomalies, and checking assumptions.",
+"duration": "Week 10",
+"is_free_preview": false,
+"is_premium_locked": true
+},
+"position": {
+"x": 250,
+"y": 750
+}
+},
+{
+"id": "7",
+"type": "default",
+"data": {
+"label": "Intro to Machine Learning",
+"description": "Understanding supervised vs unsupervised learning and Scikit-Learn.",
+"duration": "Week 11",
+"is_free_preview": false,
+"is_premium_locked": true,
+"resource_url": "https://www.kaggle.com/learn/intro-to-machine-learning"
+},
+"position": {
+"x": 250,
+"y": 900
+}
+},
+{
+"id": "8",
+"type": "default",
+"data": {
+"label": "Supervised Learning",
+"description": "Linear regression, logistic regression, and decision trees.",
+"duration": "Weeks 12-14",
+"is_free_preview": false,
+"is_premium_locked": true
+},
+"position": {
+"x": 250,
+"y": 1050
+}
+},
+{
+"id": "9",
+"type": "default",
+"data": {
+"label": "Unsupervised Learning",
+"description": "K-Means clustering and Principal Component Analysis (PCA).",
+"duration": "Weeks 15-16",
+"is_free_preview": false,
+"is_premium_locked": true
+},
+"position": {
+"x": 250,
+"y": 1200
+}
+},
+{
+"id": "10",
+"type": "default",
+"data": {
+"label": "Model Evaluation",
+"description": "Cross-validation, hyperparameter tuning, and ROC/AUC metrics.",
+"duration": "Weeks 17-18",
+"is_free_preview": false,
+"is_premium_locked": true
+},
+"position": {
+"x": 250,
+"y": 1350
+}
+},
+{
+"id": "11",
+"type": "default",
+"data": {
+"label": "Intro to Deep Learning",
+"description": "Basic neural networks using TensorFlow or PyTorch.",
+"duration": "Weeks 19-20",
+"is_free_preview": false,
+"is_premium_locked": true
+},
+"position": {
+"x": 250,
+"y": 1500
+}
+},
+{
+"id": "12",
+"type": "default",
+"data": {
+"label": "SQL & Databases",
+"description": "Querying relational databases to extract datasets.",
+"duration": "Weeks 21-22",
+"is_free_preview": false,
+"is_premium_locked": true,
+"resource_url": "https://www.kaggle.com/learn/intro-to-sql"
+},
+"position": {
+"x": 250,
+"y": 1650
+}
+},
+{
+"id": "13",
+"type": "default",
+"data": {
+"label": "Model Deployment Basics",
+"description": "Serving models via APIs using Flask, FastAPI, or Streamlit.",
+"duration": "Week 23",
+"is_free_preview": false,
+"is_premium_locked": true
+},
+"position": {
+"x": 250,
+"y": 1800
+}
+},
+{
+"id": "14",
+"type": "default",
+"data": {
+"label": "Capstone Project",
+"description": "End-to-end data science project from raw data to deployed model.",
+"duration": "Weeks 24-25",
+"is_free_preview": false,
+"is_premium_locked": true
+},
+"position": {
+"x": 250,
+"y": 1950
+}
+},
+{
+"id": "15",
+"type": "output",
+"data": {
+"label": "Job Ready: Junior Data Scientist",
+"description": "Portfolio building, resume optimization, and interview prep.",
+"duration": "Week 26",
+"is_free_preview": false,
+"is_premium_locked": true
+},
+"position": {
+"x": 250,
+"y": 2100
+}
+}
+],
+"edges": [
+{
+"id": "e1-2",
+"source": "1",
+"target": "2",
+"animated": true
+},
+{
+"id": "e2-3",
+"source": "2",
+"target": "3",
+"animated": true
+},
+{
+"id": "e3-4",
+"source": "3",
+"target": "4",
+"animated": true
+},
+{
+"id": "e4-5",
+"source": "4",
+"target": "5",
+"animated": true
+},
+{
+"id": "e5-6",
+"source": "5",
+"target": "6",
+"animated": true
+},
+{
+"id": "e6-7",
+"source": "6",
+"target": "7",
+"animated": true
+},
+{
+"id": "e7-8",
+"source": "7",
+"target": "8",
+"animated": true
+},
+{
+"id": "e8-9",
+"source": "8",
+"target": "9",
+"animated": true
+},
+{
+"id": "e9-10",
+"source": "9",
+"target": "10",
+"animated": true
+},
+{
+"id": "e10-11",
+"source": "10",
+"target": "11",
+"animated": true
+},
+{
+"id": "e11-12",
+"source": "11",
+"target": "12",
+"animated": true
+},
+{
+"id": "e12-13",
+"source": "12",
+"target": "13",
+"animated": true
+},
+{
+"id": "e13-14",
+"source": "13",
+"target": "14",
+"animated": true
+},
+{
+"id": "e14-15",
+"source": "14",
+"target": "15",
+"animated": true
+}
+]
+}
