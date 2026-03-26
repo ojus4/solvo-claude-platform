@@ -143,7 +143,7 @@ export async function GET(request: NextRequest): Promise<Response> {
         "personality_done, interest_done, aptitude_done, recommended_careers, completed_at"
       )
       .eq("user_id", userId)
-      .order("created_at", { ascending: false })
+      .order("id", { ascending: false })
       .limit(1)
       .maybeSingle();                 // returns null instead of error when no row exists
 
