@@ -82,6 +82,18 @@ export async function GET(
       );
     }
 
+
+    // ── 4. Career slug validation ─────────────────────────────────────────────
+    const { career } = await params;
+
+    if (!isValidCareer(career)) {
+      return Response.json(
+        { success: false, error: "Career roadmap not found." },
+        { status: 404 }
+      );
+    }
+
+
     // ── 3. Premium check (via service-role client, bypasses RLS) ─────────────
     const { data: profile, error: profileError } = await supabaseAdmin
       .from("profiles")
@@ -110,15 +122,6 @@ export async function GET(
       );
     }
 
-    // ── 4. Career slug validation ─────────────────────────────────────────────
-    const { career } = await params;
-
-    if (!isValidCareer(career)) {
-      return Response.json(
-        { success: false, error: "Career roadmap not found." },
-        { status: 404 }
-      );
-    }
 
     // ── 5 & 6. Read roadmap JSON from filesystem ──────────────────────────────
     const filePath = path.join(

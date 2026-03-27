@@ -114,14 +114,14 @@ export async function GET(request: Request): Promise<Response> {
 
       // Most recent assessment session
       supabaseAdmin
-        .from("assessment_sessions")
-        .select(
-          "personality_done, interest_done, aptitude_done, recommended_careers, completed_at, pdf_generated, pdf_url"
-        )
-        .eq("user_id", userId)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle(),
+.from("assessment_sessions")
+      .select(
+        "personality_done, interest_done, aptitude_done, recommended_careers, completed_at, pdf_generated, pdf_url"
+      )
+      .eq("user_id", userId)
+      .order("started_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
 
       // All psych_results rows for this user
       supabaseAdmin
