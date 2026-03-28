@@ -7,6 +7,7 @@
 // =============================================================================
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { sendWelcomeEmail } from '@/lib/email/send'
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
@@ -23,6 +24,28 @@ export async function GET(request: Request) {
     const { error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (!error) {
+      // After successful session exchange, send welcome email for new users
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data: profile } = await supabase
+        .from('profiles')
+        .select('full_name, created_at')
+        .eq('id', user.id)
+        .single()
+  
+  // Only send welcome email if account is less than 2 minutes old
+  const isNewUser = profile?.created_at && 
+    (Date.now() - new Date(profile.created_at).getTime()) < 120000
+  
+  if (isNewUser) {
+    // Import and call sendWelcomeEmail (non-blocking)
+    sendWelcomeEmail({ 
+      to: user.email!, 
+      fullName: profile?.full_name ?? '' 
+    }).catch(console.error)
+  }
+}
+
       // Successful authentication — redirect to intended destination
       const forwardedHost = request.headers.get('x-forwarded-host')
       const isLocalEnv = process.env.NODE_ENV === 'development'

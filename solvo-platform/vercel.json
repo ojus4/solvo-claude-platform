@@ -5,7 +5,13 @@
   "installCommand": "npm install",
 
   "regions": ["bom1"],
+ 
+  "env": {
 
+    "NEXT_PUBLIC_SITE_URL": "@next_public_site_url"
+
+  },
+  
   "headers": [
     {
       "source": "/api/(.*)",
