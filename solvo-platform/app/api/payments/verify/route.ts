@@ -19,7 +19,7 @@ export async function POST(request: Request): Promise<Response> {
   // 1. Rate limiting
   // -------------------------------------------------------------------------
   const ip =
-    request.headers.get("x-forwarded-for")?.split(",")[0].trim() ??
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
     request.headers.get("x-real-ip") ??
     "unknown";
 

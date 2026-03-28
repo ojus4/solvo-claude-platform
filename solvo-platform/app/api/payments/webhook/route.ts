@@ -7,16 +7,19 @@ export async function POST(request: Request): Promise<Response> {
   const signature = request.headers.get("x-razorpay-signature") ?? ""
 
   // ─── Step 2: Check payment_mode from site_settings ──────────────────────────
+  // site_settings is a key-value table: rows have `key` and `value` columns.
+  // payment_mode is a ROW where key = "payment_mode", not a column.
   try {
     const { data: settings, error: settingsError } = await supabaseAdmin
       .from("site_settings")
-      .select("payment_mode")
+      .select("value")
+      .eq("key", "payment_mode")
       .single()
-
+ 
     if (settingsError) {
       console.error("[Webhook] Failed to fetch site_settings:", settingsError.message)
       // Do not block processing — fall through if settings unavailable
-    } else if (settings?.payment_mode === "interest") {
+    } else if (settings?.value === "interest") {
       console.log("[Webhook] payment_mode is 'interest' — skipping processing.")
       return Response.json(
         { received: true, processed: false, reason: "interest_mode" },
