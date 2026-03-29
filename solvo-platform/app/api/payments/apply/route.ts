@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin-client";
 import { RateLimiterMemory, RateLimiterRes } from "rate-limiter-flexible";
 import { NextRequest } from "next/server";
-
+import {sendApplicationReceivedEmail,sendAdminNewApplicationAlert,} from "@/lib/email/send";
 // ---------------------------------------------------------------------------
 // Rate limiter — 3 requests per minute per IP
 // ---------------------------------------------------------------------------
@@ -244,6 +244,24 @@ export async function POST(request: NextRequest): Promise<Response> {
         { status: 500 }
       );
     }
+
+    // ── 8B. Send confirmation emails (non-blocking) ───────────────────────────
+    // Send confirmation to applicant and alert to admin (non-blocking)
+    Promise.all([
+    sendApplicationReceivedEmail({
+      to: profile.email,
+      fullName: profile.full_name ?? "",
+      tier,
+    }),
+    sendAdminNewApplicationAlert({
+      applicantEmail: profile.email,
+      applicantName: profile.full_name ?? "Unknown",
+      tier,
+      message: sanitisedMessage ?? undefined,
+      source: sanitisedSource ?? undefined,
+    }),
+  ]).catch(console.error);
+ 
   } catch (err) {
     console.error("[apply] Unexpected insert error:", err);
     return Response.json(

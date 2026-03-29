@@ -2,6 +2,7 @@ import crypto from "crypto";
 import { RateLimiterMemory } from "rate-limiter-flexible";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin-client";
+import { sendPaymentConfirmationEmail } from "@/lib/email/send";
 
 // ---------------------------------------------------------------------------
 // Rate limiter — 5 requests per minute per IP
@@ -35,7 +36,11 @@ export async function POST(request: Request): Promise<Response> {
   // -------------------------------------------------------------------------
   // 2. Authenticate user
   // -------------------------------------------------------------------------
+  
+  // Declared outside the try block so user.email is accessible later for email sending
   let userId: string;
+  let userEmail: string;
+  let userFullName: string = "";
 
   try {
     const supabase = await createClient();
@@ -52,6 +57,7 @@ export async function POST(request: Request): Promise<Response> {
     }
 
     userId = user.id;
+    userEmail = user.email ?? ""; // <--- WE NOW ASSIGN THE EMAIL HERE
   } catch (err) {
     console.error("[verify] Auth check failed:", err);
     return Response.json(
@@ -220,6 +226,16 @@ export async function POST(request: Request): Promise<Response> {
   // -------------------------------------------------------------------------
   // 9. Upgrade user profile
   // -------------------------------------------------------------------------
+
+  // Fetch full_name alongside the upgrade so the confirmation email is personalised
+  const { data: profileData } = await supabaseAdmin
+    .from("profiles")
+    .select("full_name")
+    .eq("id", userId)
+    .single();
+ 
+  userFullName = profileData?.full_name ?? "";
+
   const { error: profileUpdateError } = await supabaseAdmin
     .from("profiles")
     .update({
@@ -236,6 +252,24 @@ export async function POST(request: Request): Promise<Response> {
       "[verify] Order paid but profile upgrade failed — webhook will reconcile:",
       profileUpdateError
     );
+  }
+
+  // -------------------------------------------------------------------------
+  // 9B. Send payment confirmation email (non-blocking)
+  // -------------------------------------------------------------------------
+  try {
+    if (userEmail) {
+  await sendPaymentConfirmationEmail({
+    to: userEmail,
+    fullName: userFullName,
+    tier: order.tier_purchased,
+    amountPaise: order.amount_paise,
+    orderId: order.id,
+  }); // <--- Notice it ends cleanly with a semicolon now
+  }
+  } catch (emailError) {
+    // Log the error but DO NOT fail the request. The payment was successful.
+    console.error("[verify] Payment successful, but receipt email failed:", emailError);
   }
 
   // -------------------------------------------------------------------------
