@@ -182,7 +182,7 @@ You received this because you signed up at solvo.in`;
   try {
     const { error } = await resend.emails.send({
       from: FROM_ADDRESS,
-      to,
+      to, // <--- OVERRIDE FOR TESTING
       subject: "Welcome to SOLVO — Your Career Journey Starts Here",
       html,
       text,
