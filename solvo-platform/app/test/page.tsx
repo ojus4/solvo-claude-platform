@@ -12,10 +12,10 @@ interface AssessmentProgress {
   eq_done: boolean;
 }
 
-type ModuleKey = 'personality' | 'interest' | 'aptitude' | 'eq';
+type BrandColor = 'yellow' | 'red' | 'blue' | 'green';
 
 interface ModuleCard {
-  key: ModuleKey;
+  key: string;
   label: string;
   icon: string;
   description: string;
@@ -23,7 +23,72 @@ interface ModuleCard {
   questions: number;
   href: string;
   doneKey: keyof AssessmentProgress;
+  color: BrandColor;
 }
+
+// ─── Brand Color Map ──────────────────────────────────────────────────────────
+// Each module is assigned one of SOLVO's four brand colors,
+// mirroring the quad-logo used across the platform.
+
+const COLOR_MAP: Record<
+  BrandColor,
+  {
+    iconBg: string;
+    badge: string;
+    badgeText: string;
+    btn: string;
+    btnText: string;
+    borderLeft: string;
+    tagBg: string;
+    tagText: string;
+    dotHex: string;
+  }
+> = {
+  yellow: {
+    iconBg: 'bg-yellow-50',
+    badge: 'bg-yellow-50 border-yellow-200',
+    badgeText: 'text-yellow-700',
+    btn: 'bg-[#FFCC00] hover:bg-yellow-400 active:bg-yellow-500 shadow-yellow-100',
+    btnText: 'text-slate-900',
+    borderLeft: 'border-l-[#FFCC00]',
+    tagBg: 'bg-yellow-50',
+    tagText: 'text-yellow-700',
+    dotHex: '#FFCC00',
+  },
+  red: {
+    iconBg: 'bg-red-50',
+    badge: 'bg-red-50 border-red-200',
+    badgeText: 'text-red-700',
+    btn: 'bg-[#FF3B30] hover:bg-red-600 active:bg-red-700 shadow-red-100',
+    btnText: 'text-white',
+    borderLeft: 'border-l-[#FF3B30]',
+    tagBg: 'bg-red-50',
+    tagText: 'text-red-700',
+    dotHex: '#FF3B30',
+  },
+  blue: {
+    iconBg: 'bg-blue-50',
+    badge: 'bg-blue-50 border-blue-200',
+    badgeText: 'text-blue-700',
+    btn: 'bg-[#007AFF] hover:bg-blue-600 active:bg-blue-700 shadow-blue-100',
+    btnText: 'text-white',
+    borderLeft: 'border-l-[#007AFF]',
+    tagBg: 'bg-blue-50',
+    tagText: 'text-blue-700',
+    dotHex: '#007AFF',
+  },
+  green: {
+    iconBg: 'bg-green-50',
+    badge: 'bg-green-50 border-green-200',
+    badgeText: 'text-green-700',
+    btn: 'bg-[#34C759] hover:bg-green-600 active:bg-green-700 shadow-green-100',
+    btnText: 'text-white',
+    borderLeft: 'border-l-[#34C759]',
+    tagBg: 'bg-green-50',
+    tagText: 'text-green-700',
+    dotHex: '#34C759',
+  },
+};
 
 // ─── Module Config ─────────────────────────────────────────────────────────────
 
@@ -33,79 +98,132 @@ const MODULES: ModuleCard[] = [
     label: 'Personality',
     icon: '🧠',
     description: 'Discover your Big Five personality traits (OCEAN)',
-    time: '~10 minutes',
+    time: '~10 min',
     questions: 50,
     href: '/test/personality',
     doneKey: 'personality_done',
+    color: 'yellow',
   },
   {
     key: 'interest',
     label: 'Interests',
     icon: '🎯',
     description: 'Find out which careers match your natural interests',
-    time: '~7 minutes',
+    time: '~7 min',
     questions: 42,
     href: '/test/interest',
     doneKey: 'interest_done',
+    color: 'red',
   },
   {
     key: 'aptitude',
     label: 'Aptitude',
     icon: '📊',
     description: 'Test your numerical, verbal and logical reasoning',
-    time: '~15 minutes',
+    time: '~15 min',
     questions: 30,
     href: '/test/aptitude',
     doneKey: 'aptitude_done',
+    color: 'blue',
   },
   {
     key: 'eq',
     label: 'Emotional Intelligence',
     icon: '❤️',
     description: 'Measure your EQ across 5 key dimensions',
-    time: '~8 minutes',
+    time: '~8 min',
     questions: 30,
     href: '/test/eq',
     doneKey: 'eq_done',
+    color: 'green',
   },
 ];
 
-// ─── Skeleton ──────────────────────────────────────────────────────────────────
+// ─── Micro-icons (inline SVG, zero deps) ─────────────────────────────────────
+
+function ClockIcon() {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 flex-shrink-0">
+      <circle cx="8" cy="8" r="6.5" stroke="currentColor" strokeWidth="1.3" />
+      <path d="M8 5v3l1.5 1.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function ListIcon() {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 flex-shrink-0">
+      <path d="M3 5h10M3 8h7M3 11h5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function ArrowRightSmall() {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 flex-shrink-0">
+      <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function CheckSmall() {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 flex-shrink-0">
+      <path d="M3 8.5l3.5 3.5 6.5-7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+// ─── SOLVO Brand Mark (2×2 quad color squares) ───────────────────────────────
+
+function BrandMark() {
+  return (
+    <div className="grid grid-cols-2 gap-[3px] flex-shrink-0" style={{ width: 22, height: 22 }}>
+      <div className="rounded-[2px]" style={{ backgroundColor: '#FF3B30', width: 9, height: 9 }} />
+      <div className="rounded-tr-[4px] rounded-[2px]" style={{ backgroundColor: '#007AFF', width: 9, height: 9 }} />
+      <div className="rounded-bl-[4px] rounded-[2px]" style={{ backgroundColor: '#FFCC00', width: 9, height: 9 }} />
+      <div className="rounded-[2px]" style={{ backgroundColor: '#34C759', width: 9, height: 9 }} />
+    </div>
+  );
+}
+
+// ─── Skeletons ────────────────────────────────────────────────────────────────
 
 function SkeletonCard() {
   return (
-    <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 animate-pulse">
-      <div className="flex items-start justify-between mb-4">
-        <div className="h-12 w-12 rounded-xl bg-slate-800" />
-        <div className="h-6 w-20 rounded-full bg-slate-800" />
+    <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm animate-pulse">
+      <div className="flex items-start justify-between mb-5">
+        <div className="h-12 w-12 rounded-xl bg-slate-100" />
+        <div className="h-6 w-20 rounded-full bg-slate-100" />
       </div>
-      <div className="h-5 w-32 rounded bg-slate-800 mb-2" />
-      <div className="h-4 w-full rounded bg-slate-800 mb-1" />
-      <div className="h-4 w-3/4 rounded bg-slate-800 mb-5" />
-      <div className="flex gap-3 mb-5">
-        <div className="h-4 w-20 rounded bg-slate-800" />
-        <div className="h-4 w-24 rounded bg-slate-800" />
+      <div className="h-5 w-32 rounded bg-slate-100 mb-2" />
+      <div className="h-4 w-full rounded bg-slate-100 mb-1" />
+      <div className="h-4 w-3/4 rounded bg-slate-100 mb-5" />
+      <div className="flex gap-2 mb-5">
+        <div className="h-6 w-20 rounded-full bg-slate-100" />
+        <div className="h-6 w-24 rounded-full bg-slate-100" />
       </div>
-      <div className="h-10 w-full rounded-xl bg-slate-800" />
+      <div className="h-10 w-full rounded-xl bg-slate-100" />
     </div>
   );
 }
 
 function PageSkeleton() {
   return (
-    <div className="min-h-screen bg-[#080c14] px-4 py-10 sm:px-6 lg:px-8">
-      {/* Header skeleton */}
-      <div className="max-w-4xl mx-auto mb-10">
-        <div className="h-8 w-64 rounded bg-slate-800 animate-pulse mb-3" />
-        <div className="h-5 w-80 rounded bg-slate-800 animate-pulse mb-6" />
-        <div className="h-3 w-full rounded-full bg-slate-800 animate-pulse mb-1" />
-        <div className="h-4 w-28 rounded bg-slate-800 animate-pulse" />
-      </div>
-      {/* Cards skeleton */}
-      <div className="max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-5">
-        {[0, 1, 2, 3].map((i) => (
-          <SkeletonCard key={i} />
-        ))}
+    <div className="min-h-screen bg-[#F2F2F7] px-4 py-10 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="flex items-center gap-2 mb-6 animate-pulse">
+          <div className="h-5 w-5 rounded bg-slate-200" />
+          <div className="h-4 w-28 rounded bg-slate-200" />
+        </div>
+        <div className="h-9 w-72 rounded-lg bg-slate-200 animate-pulse mb-2" />
+        <div className="h-5 w-80 rounded bg-slate-200 animate-pulse mb-6" />
+        <div className="bg-white rounded-2xl border border-slate-200 p-5 animate-pulse mb-8">
+          <div className="h-2 w-full rounded-full bg-slate-100" />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {[0, 1, 2, 3].map((i) => <SkeletonCard key={i} />)}
+        </div>
       </div>
     </div>
   );
@@ -131,32 +249,20 @@ export default function TestPage() {
           return;
         }
 
-        if (!res.ok) {
-          throw new Error(`Unexpected status: ${res.status}`);
-        }
+        if (!res.ok) throw new Error(`Status ${res.status}`);
 
         const data = await res.json();
-
-        // Map API response fields to local progress shape.
-        // The API may return an `assessment_session` object or flat fields —
-        // adapt as needed to match the real response shape.
         const session = data?.session ?? data?.assessment_session ?? data ?? {};
 
         setProgress({
           personality_done: Boolean(session.personality_done),
-          interest_done: Boolean(session.interest_done),
-          aptitude_done: Boolean(session.aptitude_done),
-          eq_done: Boolean(session.eq_done),
+          interest_done:    Boolean(session.interest_done),
+          aptitude_done:    Boolean(session.aptitude_done),
+          eq_done:          Boolean(session.eq_done),
         });
       } catch (err) {
-        console.error('[TestPage] Failed to fetch assessment progress:', err);
-        // Treat fetch errors as "no progress yet" so the page still renders
-        setProgress({
-          personality_done: false,
-          interest_done: false,
-          aptitude_done: false,
-          eq_done: false,
-        });
+        console.error('[TestPage] fetch error:', err);
+        setProgress({ personality_done: false, interest_done: false, aptitude_done: false, eq_done: false });
       } finally {
         setLoading(false);
       }
@@ -165,228 +271,235 @@ export default function TestPage() {
     fetchProgress();
   }, []);
 
-  // ── Loading ──────────────────────────────────────────────────────────────────
   if (loading) return <PageSkeleton />;
 
-  // ── Not signed in ────────────────────────────────────────────────────────────
+  // ── Unauthorized ─────────────────────────────────────────────────────────────
   if (unauthorized) {
     return (
-      <div className="min-h-screen bg-[#080c14] flex items-center justify-center px-4">
-        <div className="text-center max-w-sm">
-          {/* Icon ring */}
-          <div className="mx-auto mb-6 h-20 w-20 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-3xl">
-            🔒
+      <>
+        <style>{`@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');`}</style>
+        <div
+          className="min-h-screen bg-[#F2F2F7] flex items-center justify-center px-6"
+          style={{ fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}
+        >
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-10 text-center max-w-sm w-full">
+            <div className="mx-auto mb-5 w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center text-2xl">
+              🔒
+            </div>
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <BrandMark />
+              <span className="font-extrabold text-slate-900 text-lg tracking-tight">SOLVO</span>
+            </div>
+            <h2 className="text-xl font-bold text-slate-900 mb-2">Sign in to continue</h2>
+            <p className="text-slate-500 text-sm mb-8 leading-relaxed">
+              Please sign in to take the assessment and track your progress.
+            </p>
+            <Link
+              href="/login"
+              className="inline-flex items-center justify-center gap-2 w-full rounded-xl bg-[#007AFF] hover:bg-blue-600 active:bg-blue-700 text-white font-bold text-sm px-6 py-3 transition-colors shadow-md shadow-blue-100"
+            >
+              Sign In <ArrowRightSmall />
+            </Link>
           </div>
-          <h2
-            className="text-2xl font-bold text-white mb-2"
-            style={{ fontFamily: "'DM Serif Display', Georgia, serif" }}
-          >
-            Sign in to continue
-          </h2>
-          <p className="text-slate-400 text-sm mb-8">
-            Please sign in to take the assessment and track your progress.
-          </p>
-          <Link
-            href="/login"
-            className="inline-flex items-center gap-2 rounded-xl bg-amber-400 hover:bg-amber-300 active:bg-amber-500 text-slate-900 font-semibold text-sm px-6 py-3 transition-colors duration-150"
-          >
-            Sign In →
-          </Link>
         </div>
-      </div>
+      </>
     );
   }
 
-  // ── Compute stats ────────────────────────────────────────────────────────────
+  // ── Stats ─────────────────────────────────────────────────────────────────────
   const doneCount = progress
-    ? [
-        progress.personality_done,
-        progress.interest_done,
-        progress.aptitude_done,
-        progress.eq_done,
-      ].filter(Boolean).length
+    ? [progress.personality_done, progress.interest_done, progress.aptitude_done, progress.eq_done].filter(Boolean).length
     : 0;
 
-  const allDone = doneCount === 4;
-  const pct = (doneCount / 4) * 100;
+  const allDone  = doneCount === 4;
+  const pct      = (doneCount / 4) * 100;
+  const brandDots: string[] = ['#FF3B30', '#007AFF', '#FFCC00', '#34C759'];
 
-  // ── Full render ──────────────────────────────────────────────────────────────
   return (
     <>
-      {/* Google Font — DM Serif Display */}
-      {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap');`}</style>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+        /* Staggered card entrance — pure CSS, works perfectly on mobile */
+        .solvo-fade {
+          animation: solvoUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+        .solvo-fade-0 { animation-delay: 0.00s; }
+        .solvo-fade-1 { animation-delay: 0.07s; }
+        .solvo-fade-2 { animation-delay: 0.14s; }
+        .solvo-fade-3 { animation-delay: 0.21s; }
+        .solvo-fade-4 { animation-delay: 0.28s; }
+        .solvo-fade-5 { animation-delay: 0.35s; }
+
+        @keyframes solvoUp {
+          from { opacity: 0; transform: translateY(14px); }
+          to   { opacity: 1; transform: translateY(0);    }
+        }
+      `}</style>
 
       <div
-        className="min-h-screen bg-[#080c14] px-4 py-10 sm:px-6 lg:px-8"
-        style={{ fontFamily: "'DM Sans', sans-serif" }}
+        className="min-h-screen bg-[#F2F2F7] px-4 py-10 sm:px-6 lg:px-8"
+        style={{ fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif" }}
       >
         <div className="max-w-4xl mx-auto">
 
-          {/* ── All-done banner ─────────────────────────────────────────────── */}
+          {/* ── Brand breadcrumb ─────────────────────────────────────────────── */}
+          <div className="solvo-fade solvo-fade-0 flex items-center gap-2 mb-7">
+            <BrandMark />
+            <span className="font-extrabold text-slate-900 text-[15px] tracking-tight">SOLVO</span>
+            <span className="text-slate-300 text-sm select-none">/</span>
+            <span className="text-sm font-medium text-slate-500">Assessment</span>
+          </div>
+
+          {/* ── All-done banner ──────────────────────────────────────────────── */}
           {allDone && (
-            <div className="mb-8 rounded-2xl border border-emerald-500/30 bg-emerald-950/40 px-5 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="solvo-fade solvo-fade-1 mb-6 bg-white border border-green-200 rounded-2xl px-5 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-sm">
               <div className="flex items-center gap-3">
-                <span className="text-2xl">🎉</span>
+                <div className="w-10 h-10 flex-shrink-0 rounded-xl bg-green-50 flex items-center justify-center text-xl">
+                  🎉
+                </div>
                 <div>
-                  <p className="text-emerald-300 font-semibold text-sm sm:text-base leading-snug">
+                  <p className="font-bold text-slate-900 text-sm sm:text-base">
                     All modules complete! Your career report is ready.
                   </p>
-                  <p className="text-emerald-500/70 text-xs mt-0.5">
+                  <p className="text-slate-500 text-xs mt-0.5">
                     View your personalised results and recommended careers.
                   </p>
                 </div>
               </div>
               <Link
                 href="/dashboard"
-                className="shrink-0 inline-flex items-center gap-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 text-white font-semibold text-sm px-5 py-2.5 transition-colors duration-150"
+                className="shrink-0 inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#34C759] hover:bg-green-600 active:bg-green-700 text-white font-bold text-sm px-5 py-2.5 transition-colors shadow-sm shadow-green-100"
               >
-                View My Results →
+                View My Results <ArrowRightSmall />
               </Link>
             </div>
           )}
 
-          {/* ── Page header ─────────────────────────────────────────────────── */}
-          <header className="mb-8">
-            <h1
-              className="text-3xl sm:text-4xl text-white mb-1.5"
-              style={{ fontFamily: "'DM Serif Display', Georgia, serif" }}
-            >
+          {/* ── Page header ──────────────────────────────────────────────────── */}
+          <header className="solvo-fade solvo-fade-1 mb-7">
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-1.5">
               Your Career Assessment
             </h1>
-            <p className="text-slate-400 text-sm sm:text-base mb-5">
+            <p className="text-slate-500 text-sm sm:text-[15px] mb-6">
               Complete all 4 modules to get your personalised career report
             </p>
 
-            {/* Progress bar */}
-            <div className="flex items-center gap-3">
-              <div className="flex-1 h-2 rounded-full bg-slate-800 overflow-hidden">
-                <div
-                  className="h-full rounded-full bg-gradient-to-r from-amber-400 to-amber-300 transition-all duration-700 ease-out"
-                  style={{ width: `${pct}%` }}
-                />
+            {/* Progress tracker card */}
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm px-5 py-4 flex items-center gap-4">
+              {/* Quad dots — fill in as modules complete */}
+              <div className="grid grid-cols-2 gap-[3px] flex-shrink-0">
+                {brandDots.map((hex, i) => (
+                  <div
+                    key={i}
+                    className="rounded-[2px] transition-opacity duration-500"
+                    style={{ width: 9, height: 9, backgroundColor: hex, opacity: i < doneCount ? 1 : 0.18 }}
+                  />
+                ))}
               </div>
-              <span className="shrink-0 text-xs font-medium text-slate-400 tabular-nums">
-                <span className="text-amber-400 font-semibold">{doneCount}</span> of 4 modules complete
-              </span>
+
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Progress</span>
+                  <span className="text-xs font-bold text-slate-700 tabular-nums">
+                    <span style={{ color: '#007AFF' }}>{doneCount}</span>{' '}
+                    <span className="text-slate-400 font-medium">of 4 modules complete</span>
+                  </span>
+                </div>
+                {/* Segmented bar matching brand colors */}
+                <div className="flex gap-1 h-2">
+                  {brandDots.map((hex, i) => (
+                    <div key={i} className="flex-1 rounded-full bg-slate-100 overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all duration-700 ease-out"
+                        style={{ width: i < doneCount ? '100%' : '0%', backgroundColor: hex }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </header>
 
           {/* ── Module cards grid ────────────────────────────────────────────── */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            {MODULES.map((mod) => {
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {MODULES.map((mod, idx) => {
               const isDone = progress ? progress[mod.doneKey] : false;
+              const c      = COLOR_MAP[mod.color];
 
               return (
                 <div
                   key={mod.key}
                   className={[
-                    'group relative rounded-2xl border p-6 flex flex-col transition-all duration-200',
-                    isDone
-                      ? 'border-emerald-700/40 bg-gradient-to-br from-emerald-950/30 to-slate-900/60 hover:border-emerald-600/50'
-                      : 'border-slate-800 bg-slate-900/60 hover:border-slate-700 hover:bg-slate-900/80',
+                    `solvo-fade solvo-fade-${idx + 2}`,
+                    'bg-white rounded-2xl border border-slate-200 border-l-[3px] shadow-sm',
+                    'transition-shadow duration-200 hover:shadow-md',
+                    c.borderLeft,
                   ].join(' ')}
                 >
-                  {/* Card top row */}
-                  <div className="flex items-start justify-between mb-4">
-                    {/* Icon */}
-                    <div
-                      className={[
-                        'h-12 w-12 rounded-xl flex items-center justify-center text-2xl',
-                        isDone ? 'bg-emerald-900/50' : 'bg-slate-800',
-                      ].join(' ')}
-                    >
-                      {mod.icon}
+                  <div className="p-6">
+
+                    {/* Icon + badge */}
+                    <div className="flex items-start justify-between mb-4">
+                      <div className={`h-12 w-12 rounded-xl flex items-center justify-center text-2xl ${c.iconBg}`}>
+                        {mod.icon}
+                      </div>
+
+                      {isDone ? (
+                        <span className={`inline-flex items-center gap-1.5 border rounded-full px-3 py-1 text-xs font-bold ${c.badge} ${c.badgeText}`}>
+                          <CheckSmall /> Done
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-500">
+                          Not Started
+                        </span>
+                      )}
                     </div>
 
-                    {/* Status badge */}
-                    {isDone ? (
-                      <span className="inline-flex items-center gap-1 rounded-full border border-emerald-700/40 bg-emerald-900/50 px-3 py-1 text-xs font-medium text-emerald-400">
-                        Complete ✓
+                    {/* Title */}
+                    <h2 className="text-[15px] font-bold text-slate-900 mb-1 leading-snug">
+                      {mod.label}
+                    </h2>
+
+                    {/* Description */}
+                    <p className="text-slate-500 text-sm leading-relaxed mb-4">
+                      {mod.description}
+                    </p>
+
+                    {/* Meta tags */}
+                    <div className="flex items-center gap-2 mb-5 flex-wrap">
+                      <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${c.tagBg} ${c.tagText}`}>
+                        <ClockIcon /> {mod.time}
                       </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 rounded-full border border-slate-700 bg-slate-800 px-3 py-1 text-xs font-medium text-slate-400">
-                        Not Started
+                      <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${c.tagBg} ${c.tagText}`}>
+                        <ListIcon /> {mod.questions} questions
                       </span>
-                    )}
-                  </div>
+                    </div>
 
-                  {/* Module name */}
-                  <h2
-                    className="text-white font-semibold text-lg mb-1.5 leading-snug"
-                    style={{ fontFamily: "'DM Serif Display', Georgia, serif" }}
-                  >
-                    {mod.label}
-                  </h2>
-
-                  {/* Description */}
-                  <p className="text-slate-400 text-sm leading-relaxed mb-4 flex-1">
-                    {mod.description}
-                  </p>
-
-                  {/* Meta row */}
-                  <div className="flex items-center gap-4 text-xs text-slate-500 mb-5">
-                    <span className="flex items-center gap-1.5">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 16 16"
-                        fill="currentColor"
-                        className="h-3.5 w-3.5 text-slate-600"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M1 8a7 7 0 1 1 14 0A7 7 0 0 1 1 8Zm7.75-4.25a.75.75 0 0 0-1.5 0V8c0 .414.336.75.75.75h3.25a.75.75 0 0 0 0-1.5h-2.5V3.75Z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                      {mod.time}
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 16 16"
-                        fill="currentColor"
-                        className="h-3.5 w-3.5 text-slate-600"
-                      >
-                        <path d="M5.5 3.5A1.5 1.5 0 0 1 7 2h2a1.5 1.5 0 0 1 1.5 1.5v.5h1A1.5 1.5 0 0 1 13 5.5v7A1.5 1.5 0 0 1 11.5 14h-7A1.5 1.5 0 0 1 3 12.5v-7A1.5 1.5 0 0 1 4.5 4h1v-.5Zm1.5 0v.5h2v-.5a.5.5 0 0 0-.5-.5H7.5a.5.5 0 0 0-.5.5ZM5 5.5H4.5a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.5-.5H5Z" />
-                      </svg>
-                      {mod.questions} questions
-                    </span>
-                  </div>
-
-                  {/* CTA button */}
-                  <Link
-                    href={mod.href}
-                    className={[
-                      'inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-150',
-                      isDone
-                        ? 'border border-slate-700 bg-transparent text-slate-300 hover:bg-slate-800 hover:text-white'
-                        : 'bg-amber-400 hover:bg-amber-300 active:bg-amber-500 text-slate-900',
-                    ].join(' ')}
-                  >
-                    {isDone ? 'Retake' : 'Start'}
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 16 16"
-                      fill="currentColor"
-                      className="h-3.5 w-3.5"
+                    {/* Action button */}
+                    <Link
+                      href={mod.href}
+                      className={[
+                        'inline-flex items-center justify-center gap-2 w-full rounded-xl px-4 py-2.5',
+                        'text-sm font-bold transition-all duration-150',
+                        isDone
+                          ? 'bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-700'
+                          : `${c.btn} ${c.btnText} shadow-md`,
+                      ].join(' ')}
                     >
-                      <path
-                        fillRule="evenodd"
-                        d="M2 8a.75.75 0 0 1 .75-.75h8.69L8.22 4.03a.75.75 0 0 1 1.06-1.06l4.5 4.5a.75.75 0 0 1 0 1.06l-4.5 4.5a.75.75 0 0 1-1.06-1.06l3.22-3.22H2.75A.75.75 0 0 1 2 8Z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </Link>
+                      {isDone ? 'Retake' : 'Start'} <ArrowRightSmall />
+                    </Link>
+                  </div>
                 </div>
               );
             })}
           </div>
 
-          {/* ── Footer note ─────────────────────────────────────────────────── */}
-          <p className="mt-10 text-center text-xs text-slate-600">
-            Your answers are private and used only to generate your personalised report.
+          {/* ── Footer note ──────────────────────────────────────────────────── */}
+          <p className="mt-10 text-center text-xs text-slate-400">
+            Your answers are private and only used to generate your personalised career report.
           </p>
+
         </div>
       </div>
     </>
