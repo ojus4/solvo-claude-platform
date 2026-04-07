@@ -94,12 +94,13 @@ export async function POST(request: Request): Promise<Response> {
     personality_done: boolean;
     interest_done: boolean;
     aptitude_done: boolean;
+    eq_done: boolean;
   };
 
   try {
     const { data: session, error: sessionError } = await supabaseAdmin
       .from("assessment_sessions")
-      .select("id, personality_done, interest_done, aptitude_done")
+      .select("id, personality_done, interest_done, aptitude_done, eq_done")
       .eq("user_id", userId)
       .order("started_at", { ascending: false })
       .limit(1)
@@ -118,7 +119,7 @@ export async function POST(request: Request): Promise<Response> {
         {
           success: false,
           error:
-            "No assessment session found. Complete all three modules first.",
+            "No assessment session found. Complete all four modules first.",
         },
         { status: 400 }
       );
@@ -134,17 +135,18 @@ export async function POST(request: Request): Promise<Response> {
     );
   }
 
-  // ── 4. Verify all three modules are complete ───────────────────────────
+  // ── 4. Verify all four modules are complete ───────────────────────────
   if (
     !sessionRow.personality_done ||
     !sessionRow.interest_done ||
-    !sessionRow.aptitude_done
+    !sessionRow.aptitude_done ||
+    !sessionRow.eq_done
   ) {
     return Response.json(
       {
         success: false,
         error:
-          "Assessment incomplete. All three modules must be finished before calling this endpoint.",
+          "Assessment incomplete. All four modules must be finished before calling this endpoint.",
       },
       { status: 400 }
     );

@@ -26,12 +26,14 @@ interface ResultsPayload {
   personality: ModuleResult | null;
   interest: ModuleResult | null;
   aptitude: ModuleResult | null;
+  eq: ModuleResult | null; // added new module 'eq' to results payload
 }
 
 interface SessionPayload {
   personality_done: boolean;
   interest_done: boolean;
   aptitude_done: boolean;
+  eq_done: boolean; // added new flag for 'eq' module
   all_complete: boolean;
   recommended_careers: string[] | null;
   completed_at: string | null;
@@ -48,11 +50,13 @@ const EMPTY_RESPONSE: SuccessResponse = {
     personality: null,
     interest: null,
     aptitude: null,
+    eq: null, // added new module 'eq' to empty results
   },
   session: {
     personality_done: false,
     interest_done: false,
     aptitude_done: false,
+    eq_done: false, // added new flag for 'eq' module
     all_complete: false,
     recommended_careers: null,
     completed_at: null,
@@ -140,7 +144,7 @@ export async function GET(request: NextRequest): Promise<Response> {
     const { data: sessionRow, error: sessionError } = await supabaseAdmin
       .from("assessment_sessions")
       .select(
-        "personality_done, interest_done, aptitude_done, recommended_careers, completed_at"
+        "personality_done, interest_done, aptitude_done, eq_done, recommended_careers, completed_at"
       )
       .eq("user_id", userId)
       .order("id", { ascending: false })
@@ -196,6 +200,7 @@ export async function GET(request: NextRequest): Promise<Response> {
       personality: moduleMap.get("personality") ?? null,
       interest: moduleMap.get("interest") ?? null,
       aptitude: moduleMap.get("aptitude") ?? null,
+      eq: moduleMap.get("eq") ?? null, // added new module 'eq' to results mapping
     };
 
     // ------------------------------------------------------------------
@@ -204,12 +209,14 @@ export async function GET(request: NextRequest): Promise<Response> {
     const personalityDone = Boolean(sessionRow?.personality_done);
     const interestDone = Boolean(sessionRow?.interest_done);
     const aptitudeDone = Boolean(sessionRow?.aptitude_done);
+    const eqDone = Boolean(sessionRow?.eq_done); // added new flag for 'eq' module
 
     const session: SessionPayload = {
       personality_done: personalityDone,
       interest_done: interestDone,
       aptitude_done: aptitudeDone,
-      all_complete: personalityDone && interestDone && aptitudeDone,
+      eq_done: eqDone, // added new flag for 'eq' module
+      all_complete: personalityDone && interestDone && aptitudeDone && eqDone, // updated to include 'eq' module
       recommended_careers:
         (sessionRow?.recommended_careers as string[] | null) ?? null,
       completed_at: sessionRow?.completed_at ?? null,
