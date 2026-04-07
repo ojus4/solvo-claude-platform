@@ -14,9 +14,9 @@ const rateLimiter = new RateLimiterMemory({
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
-type PsychModule = 'personality' | 'interest' | 'aptitude';
+type PsychModule = 'personality' | 'interest' | 'aptitude' | 'eq';
 
-const VALID_MODULES: PsychModule[] = ['personality', 'interest', 'aptitude'];
+const VALID_MODULES: PsychModule[] = ['personality', 'interest', 'aptitude', 'eq'];
 
 interface SubmitBody {
   module: PsychModule;
@@ -30,12 +30,14 @@ const MODULE_COLUMN: Record<PsychModule, keyof AssessmentSessionFlags> = {
   personality: 'personality_done',
   interest: 'interest_done',
   aptitude: 'aptitude_done',
+  eq: 'eq_done', // added new module 'eq' with corresponding column
 };
 
 interface AssessmentSessionFlags {
   personality_done: boolean;
   interest_done: boolean;
   aptitude_done: boolean;
+  eq_done: boolean; // added new flag for 'eq' module
 }
 
 // ---------------------------------------------------------------------------
@@ -203,7 +205,7 @@ export async function POST(request: NextRequest) {
       // ── 8. Check if all three modules are now complete ────────────────────
       const { data: sessionRow, error: sessionFetchError } = await admin
         .from('assessment_sessions')
-        .select('personality_done, interest_done, aptitude_done')
+        .select('personality_done, interest_done, aptitude_done, eq_done')
         .eq('user_id', userId)
         .single();
 
@@ -215,7 +217,8 @@ export async function POST(request: NextRequest) {
       const allDone =
         sessionRow.personality_done === true &&
         sessionRow.interest_done === true &&
-        sessionRow.aptitude_done === true;
+        sessionRow.aptitude_done === true &&
+        sessionRow.eq_done === true; // include new module in completion check
 
       // ── 9. If all done, stamp completed_at ───────────────────────────────
       if (allDone) {
