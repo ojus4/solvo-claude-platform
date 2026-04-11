@@ -3,6 +3,18 @@ import { supabaseAdmin } from '@/lib/supabase/admin-client';
 import { RateLimiterMemory, RateLimiterRes } from 'rate-limiter-flexible';
 import { NextRequest } from 'next/server';
 
+// Scoring functions — server-side only, never trust client-supplied values
+import { calculateBigFive } from '@/lib/scoring/calculate-big-five';
+import { calculateRiasec } from '@/lib/scoring/calculate-riasec';
+import { calculateAptitude } from '@/lib/scoring/calculate-aptitude';
+import { calculateEq } from '@/lib/scoring/calculate-eq';
+
+// Import types for casting
+import type { BigFiveAnswers } from '@/lib/scoring/calculate-big-five';
+import type { RiasecAnswers } from '@/lib/scoring/calculate-riasec';
+import type { AptitudeAnswers } from '@/lib/scoring/calculate-aptitude';
+import type { EqAnswers } from '@/lib/scoring/calculate-eq';
+
 // ---------------------------------------------------------------------------
 // Rate limiter — 5 requests per 60 seconds, keyed by IP
 // ---------------------------------------------------------------------------
@@ -21,8 +33,9 @@ const VALID_MODULES: PsychModule[] = ['personality', 'interest', 'aptitude', 'eq
 interface SubmitBody {
   module: PsychModule;
   raw_answers: Record<string, unknown>;
-  scores: Record<string, unknown>;
-  primary_type: string;
+  // scores and primary_type are intentionally absent —
+  // any values the client sends for these are silently ignored.
+  // Both are computed server-side from raw_answers only.
 }
 
 // Map each module to its boolean column in assessment_sessions
@@ -38,6 +51,43 @@ interface AssessmentSessionFlags {
   interest_done: boolean;
   aptitude_done: boolean;
   eq_done: boolean; // added new flag for 'eq' module
+}
+
+// ---------------------------------------------------------------------------
+// Server-side scoring dispatcher
+// ---------------------------------------------------------------------------
+interface ScoringResult {
+  scores: Record<string, number>;
+  primary_type: string;
+}
+
+function computeScores(
+  psychModule: PsychModule,
+  raw_answers: Record<string, unknown>,
+): ScoringResult {
+  switch (psychModule) {
+    case 'personality': {
+      const result = calculateBigFive(raw_answers as BigFiveAnswers);
+      return { scores: result.percentage, primary_type: result.primaryTrait };
+    }
+    case 'interest': {
+      const result = calculateRiasec(raw_answers as RiasecAnswers);
+      return { scores: result.counts, primary_type: result.hollandCode };
+    }
+    case 'aptitude': {
+      const result = calculateAptitude(raw_answers as AptitudeAnswers);
+      return { scores: { Numerical: result.categories.Numerical.percentage, Verbal: result.categories.Verbal.percentage, Logical: result.categories.Logical.percentage }, primary_type: String(result.overallPercentage) };
+    }
+    case 'eq': {
+      const result = calculateEq(raw_answers as EqAnswers);
+      return { scores: result.categories, primary_type: String(result.overallEqScore) };
+    }
+    default: {
+      // TypeScript exhaustiveness guard — never reached at runtime
+      const _exhaustive: never = psychModule;
+      throw new Error(`Unhandled module: ${_exhaustive}`);
+    }
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -104,7 +154,8 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { module: psychModule, raw_answers, scores, primary_type } = body;
+  // scores and primary_type are NOT destructured — never read from the client.
+  const { module: psychModule, raw_answers } = body;
 
   if (!psychModule || !(VALID_MODULES as string[]).includes(psychModule)) {
     return Response.json(
@@ -127,33 +178,60 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  if (!scores || typeof scores !== 'object' || Array.isArray(scores)) {
-    return Response.json(
-      { success: false, error: 'scores must be a non-array object.' },
-      { status: 400 },
-    );
-  }
-
-  if (!primary_type || typeof primary_type !== 'string' || !primary_type.trim()) {
-    return Response.json(
-      { success: false, error: 'primary_type must be a non-empty string.' },
-      { status: 400 },
-    );
-  }
-
-  // ── 4. Use admin client for all DB writes (bypasses RLS) ──────────────────
-  const admin = supabaseAdmin;
+  // ── 4. Server-side score calculation ──────────────────────────────────────
+  let scores: Record<string, number>;
+  let primary_type: string;
 
   try {
-    // ── 5. Insert into psych_results ────────────────────────────────────────
+    const result = computeScores(psychModule, raw_answers);
+    scores = result.scores;
+    primary_type = result.primary_type;
+  } catch (err) {
+    console.error('[psychometric/submit] Scoring error:', err);
+    return Response.json(
+      {
+        success: false,
+        error: 'Score calculation failed. Please verify your answers and try again.',
+      },
+      { status: 422 },
+    );
+  }
+
+  // ── 5. Use admin client for all DB writes (bypasses RLS) ──────────────────
+  const admin = supabaseAdmin;
+
+  // Check if already submitted this module
+  const { data: existing, error: checkError } = await admin
+    .from('psych_results')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('module', psychModule);
+
+  if (checkError) {
+    console.error('[psychometric/submit] Check existing error:', checkError);
+    return Response.json(
+      { success: false, error: 'Failed to check submission status.' },
+      { status: 500 },
+    );
+  }
+
+  if (existing && existing.length > 0) {
+    return Response.json(
+      { success: false, error: 'You have already submitted this module.' },
+      { status: 400 },
+    );
+  }
+
+  try {
+    // ── 6. Insert into psych_results ────────────────────────────────────────
     const { data: resultRow, error: insertError } = await admin
       .from('psych_results')
       .insert({
         user_id: userId,
         module: psychModule,
         raw_answers,
-        scores,
-        primary_type: primary_type.trim(),
+        scores,        // server-calculated
+        primary_type,  // server-calculated
       })
       .select('id')
       .single();
@@ -168,7 +246,7 @@ export async function POST(request: NextRequest) {
 
     const resultId: string = resultRow.id;
 
-    // ── 6. Check if this is the first submission for this module ─────────────
+    // ── 7. Check if this is the first submission for this module ─────────────
     //    (count existing rows for this user + module, excluding the one we
     //     just inserted — if count is now exactly 1 it's the first ever)
     const { count: moduleCount, error: countError } = await admin
@@ -186,7 +264,7 @@ export async function POST(request: NextRequest) {
     const isFirstForModule = (moduleCount ?? 0) === 1;
 
     if (isFirstForModule) {
-      // ── 7. Upsert assessment_sessions — mark this module done ─────────────
+      // ── 8. Upsert assessment_sessions — mark this module done ─────────────
       const sessionPatch: Partial<AssessmentSessionFlags> & { user_id: string } = {
         user_id: userId,
         [MODULE_COLUMN[psychModule]]: true,
@@ -202,7 +280,7 @@ export async function POST(request: NextRequest) {
         return Response.json({ success: true, resultId });
       }
 
-      // ── 8. Check if all three modules are now complete ────────────────────
+      // ── 9. Check if all three modules are now complete ────────────────────
       const { data: sessionRow, error: sessionFetchError } = await admin
         .from('assessment_sessions')
         .select('personality_done, interest_done, aptitude_done, eq_done')
@@ -220,7 +298,7 @@ export async function POST(request: NextRequest) {
         sessionRow.aptitude_done === true &&
         sessionRow.eq_done === true; // include new module in completion check
 
-      // ── 9. If all done, stamp completed_at ───────────────────────────────
+      // ── 10. If all done, stamp completed_at ───────────────────────────────
       if (allDone) {
         const { error: completeError } = await admin
           .from('assessment_sessions')
@@ -234,7 +312,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // ── 10. Success ──────────────────────────────────────────────────────────
+    // ── 11. Success ──────────────────────────────────────────────────────────
     return Response.json({ success: true, resultId }, { status: 201 });
   } catch (err) {
     console.error('[psychometric/submit] Unhandled error:', err);
