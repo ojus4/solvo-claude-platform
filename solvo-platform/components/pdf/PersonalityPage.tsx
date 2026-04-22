@@ -19,331 +19,271 @@ interface PersonalityPageProps {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-/** Ordered display sequence for the five OCEAN traits */
 const TRAIT_KEYS = ['O', 'C', 'E', 'A', 'N'] as const
 type TraitKey = (typeof TRAIT_KEYS)[number]
 
-/**
- * Score band labels and colours.
- * 0–39 → Low, 40–69 → Moderate, 70–100 → High
- */
-function scoreBand(score: number): { label: string; color: string } {
-  if (score >= 70) return { label: 'High', color: BRAND_COLORS.success }
-  if (score >= 40) return { label: 'Moderate', color: BRAND_COLORS.warning }
-  return { label: 'Low', color: BRAND_COLORS.secondary }
+/** Per-trait bar fill colours */
+const TRAIT_BAR_COLORS: Record<TraitKey, string> = {
+  O: '#8B5CF6',
+  C: '#3B82F6',
+  E: '#F59E0B',
+  A: '#10B981',
+  N: '#EF4444',
+}
+
+// ─── Interpretation helpers ───────────────────────────────────────────────────
+
+function getInterpretation(key: TraitKey, score: number): string {
+  const high = score >= 60
+  const map: Record<TraitKey, { high: string; low: string }> = {
+    O: {
+      high: 'You are intellectually curious and open to new ideas. You enjoy exploring abstract concepts and creative thinking.',
+      low: 'You prefer familiar routines and practical approaches. You value stability and concrete problem-solving.',
+    },
+    C: {
+      high: 'You are highly organised, reliable, and goal-oriented. You follow through on commitments and plan ahead effectively.',
+      low: 'You tend to be flexible and spontaneous. You adapt well to changing situations but may benefit from structure.',
+    },
+    E: {
+      high: 'You are energised by social interaction and tend to be outgoing and assertive. You thrive in collaborative environments.',
+      low: 'You recharge through solitude and tend to be reflective. You work well independently and think deeply before speaking.',
+    },
+    A: {
+      high: 'You are empathetic, cooperative, and considerate of others. You build strong relationships and work well in teams.',
+      low: 'You are direct, competitive, and prioritise results. You are not afraid to challenge others when you disagree.',
+    },
+    N: {
+      high: 'You experience emotions intensely and may be sensitive to stress. You are self-aware and empathetic to others\' struggles.',
+      low: 'You are emotionally stable and resilient under pressure. You remain calm in difficult situations and recover quickly.',
+    },
+  }
+  return high ? map[key].high : map[key].low
+}
+
+/** Returns up to 2 strength strings derived from the top-scoring traits */
+function getStrengths(scores: Record<TraitKey, number>): string[] {
+  const strengths: string[] = []
+  if (scores.O >= 60) strengths.push('Creative problem-solving', 'Intellectual curiosity')
+  if (scores.C >= 60) strengths.push('Strong work ethic', 'Attention to detail')
+  if (scores.E >= 60) strengths.push('Natural leadership', 'Team collaboration')
+  if (scores.A >= 60) strengths.push('Conflict resolution', 'Building trust')
+  if (scores.N < 60)  strengths.push('Performs well under pressure', 'Consistent and reliable')
+  return strengths.slice(0, 3)
+}
+
+/** Returns up to 2 growth area strings derived from the lowest-scoring traits */
+function getGrowthAreas(scores: Record<TraitKey, number>): string[] {
+  const growth: string[] = []
+  if (scores.O < 60) growth.push('Embracing new approaches', 'Creative thinking')
+  if (scores.C < 60) growth.push('Time management', 'Goal setting')
+  if (scores.E < 60) growth.push('Networking skills', 'Public speaking')
+  if (scores.A < 60) growth.push('Active listening', 'Empathy building')
+  if (scores.N >= 60) growth.push('Stress management', 'Emotional regulation')
+  return growth.slice(0, 3)
 }
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
   page: {
+    padding: 48,
     backgroundColor: '#FFFFFF',
   },
 
-  // ── Header strip ──────────────────────────────────────────────────────────
-  headerStrip: {
-    width: '100%',
-    height: 90,
-    backgroundColor: BRAND_COLORS.primary,
-    paddingTop: 28,
-    paddingRight: 48,
-    paddingBottom: 0,
-    paddingLeft: 48,
+  // ── Page header ───────────────────────────────────────────────────────────
+  pageHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
-  },
-
-  headerLeft: {
-    flexDirection: 'column',
-  },
-
-  pageLabel: {
-    fontSize: 9,
-    color: '#93C5FD',
-    letterSpacing: 2,
-    textTransform: 'uppercase',
-    marginBottom: 5,
+    alignItems: 'center',
+    marginBottom: 32,
+    paddingBottom: 16,
+    borderBottomWidth: 2,
+    borderBottomColor: BRAND_COLORS.primary,
   },
 
   pageTitle: {
     fontSize: 22,
-    color: '#FFFFFF',
     fontWeight: 'bold',
-    letterSpacing: 1,
+    color: BRAND_COLORS.dark,
   },
 
   pageNumber: {
-    fontSize: 11,
-    color: '#93C5FD',
-    letterSpacing: 1,
-  },
-
-  // ── Content area ──────────────────────────────────────────────────────────
-  contentArea: {
-    padding: 48,
-  },
-
-  // ── Null / not-completed state ────────────────────────────────────────────
-  notCompletedBox: {
-    marginTop: 40,
-    padding: 32,
-    backgroundColor: BRAND_COLORS.lightBg,
-    borderRadius: 6,
-    alignItems: 'center',
-  },
-
-  notCompletedText: {
-    fontSize: 13,
+    fontSize: 10,
     color: BRAND_COLORS.muted,
-    textAlign: 'center',
   },
 
-  // ── Primary trait highlight card ──────────────────────────────────────────
-  primaryCard: {
-    backgroundColor: BRAND_COLORS.primary,
-    borderRadius: 6,
-    padding: 24,
-    marginBottom: 32,
-  },
-
-  primaryCardLabel: {
+  // ── Section label ─────────────────────────────────────────────────────────
+  sectionLabel: {
     fontSize: 9,
-    color: '#93C5FD',
+    color: BRAND_COLORS.primary,
     textTransform: 'uppercase',
-    letterSpacing: 2,
+    letterSpacing: 1,
     marginBottom: 8,
   },
 
-  primaryCardTraitRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
+  // ── Primary trait box ─────────────────────────────────────────────────────
+  primaryTraitBox: {
+    backgroundColor: BRAND_COLORS.primary,
+    borderRadius: 8,
+    padding: 20,
+    marginBottom: 28,
   },
 
-  primaryCardInitial: {
-    fontSize: 36,
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    marginRight: 16,
-  },
-
-  primaryCardName: {
-    fontSize: 22,
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-  },
-
-  primaryCardDesc: {
-    fontSize: 11,
+  primaryTraitLabel: {
+    fontSize: 10,
     color: '#93C5FD',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    marginBottom: 6,
+  },
+
+  primaryTraitName: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+
+  primaryTraitDesc: {
+    fontSize: 12,
+    color: '#BFDBFE',
+    marginTop: 8,
     lineHeight: 1.5,
   },
 
-  // ── Section heading ───────────────────────────────────────────────────────
-  sectionHeading: {
-    fontSize: 12,
-    color: BRAND_COLORS.dark,
-    fontWeight: 'bold',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    marginBottom: 20,
-  },
-
-  // ── Trait bar row ─────────────────────────────────────────────────────────
+  // ── Trait bar rows ────────────────────────────────────────────────────────
   traitRow: {
-    marginBottom: 22,
-  },
-
-  traitTopRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-end',
-    marginBottom: 5,
-  },
-
-  traitNameBlock: {
-    flexDirection: 'column',
-  },
-
-  traitInitialRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 2,
+    marginBottom: 16,
   },
 
-  traitInitialBadge: {
-    width: 18,
-    height: 18,
-    borderRadius: 3,
-    backgroundColor: BRAND_COLORS.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 6,
-  },
-
-  traitInitialText: {
-    fontSize: 9,
-    color: '#FFFFFF',
-    fontWeight: 'bold',
+  traitLabelCol: {
+    width: 140,
   },
 
   traitName: {
-    fontSize: 12,
-    color: BRAND_COLORS.dark,
+    fontSize: 11,
     fontWeight: 'bold',
+    color: BRAND_COLORS.dark,
   },
 
   traitDesc: {
     fontSize: 9,
     color: BRAND_COLORS.muted,
-    marginLeft: 24,
-  },
-
-  traitScoreBlock: {
-    flexDirection: 'column',
-    alignItems: 'flex-end',
-  },
-
-  traitScoreValue: {
-    fontSize: 18,
-    color: BRAND_COLORS.dark,
-    fontWeight: 'bold',
-    lineHeight: 1,
-  },
-
-  traitScoreBand: {
-    fontSize: 8,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
     marginTop: 2,
   },
 
-  // Bar track + fill
-  barTrack: {
-    height: 8,
-    backgroundColor: BRAND_COLORS.lightBg,
-    borderRadius: 4,
-    width: '100%',
+  traitBarCol: {
+    flex: 1,
+    marginLeft: 12,
+    marginRight: 12,
   },
 
-  // barFill width is set inline via score
-  barFill: {
-    height: 8,
-    borderRadius: 4,
-  },
-
-  // ── Divider ───────────────────────────────────────────────────────────────
-  divider: {
-    height: 1,
+  traitBarBg: {
+    height: 10,
     backgroundColor: '#E5E7EB',
-    marginTop: 8,
-    marginBottom: 28,
+    borderRadius: 5,
   },
 
-  // ── Score legend ──────────────────────────────────────────────────────────
-  legendRow: {
+  traitBarFill: {
+    height: 10,
+    borderRadius: 5,
+  },
+
+  traitScore: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: BRAND_COLORS.dark,
+    width: 36,
+    textAlign: 'right',
+  },
+
+  // ── Interpretation box ────────────────────────────────────────────────────
+  interpretationBox: {
+    backgroundColor: '#F8FAFC',
+    borderRadius: 6,
+    padding: 16,
+    marginTop: 24,
+  },
+
+  interpretationTitle: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: BRAND_COLORS.dark,
+    marginBottom: 8,
+  },
+
+  interpretationText: {
+    fontSize: 10,
+    color: BRAND_COLORS.muted,
+    lineHeight: 1.6,
+  },
+
+  // ── Strengths + growth row ────────────────────────────────────────────────
+  strengthsRow: {
     flexDirection: 'row',
-    gap: 24,
+    gap: 12,
     marginTop: 16,
   },
 
-  legendItem: {
-    flexDirection: 'row',
+  strengthBox: {
+    flex: 1,
+    backgroundColor: '#ECFDF5',
+    borderRadius: 6,
+    padding: 12,
+  },
+
+  strengthLabel: {
+    fontSize: 9,
+    color: '#059669',
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    marginBottom: 6,
+  },
+
+  strengthItem: {
+    fontSize: 10,
+    color: BRAND_COLORS.dark,
+    marginBottom: 3,
+  },
+
+  growthBox: {
+    flex: 1,
+    backgroundColor: '#FFF7ED',
+    borderRadius: 6,
+    padding: 12,
+  },
+
+  growthLabel: {
+    fontSize: 9,
+    color: '#D97706',
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    marginBottom: 6,
+  },
+
+  growthItem: {
+    fontSize: 10,
+    color: BRAND_COLORS.dark,
+    marginBottom: 3,
+  },
+
+  // ── Null state ────────────────────────────────────────────────────────────
+  nullContainer: {
+    flex: 1,
     alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 80,
   },
 
-  legendDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginRight: 6,
-  },
-
-  legendLabel: {
-    fontSize: 8,
+  nullText: {
+    fontSize: 13,
     color: BRAND_COLORS.muted,
-  },
-
-  // ── Footer strip ──────────────────────────────────────────────────────────
-  footerStrip: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 6,
-    backgroundColor: BRAND_COLORS.secondary,
+    textAlign: 'center',
   },
 })
-
-// ─── Sub-components ───────────────────────────────────────────────────────────
-
-/** Single OCEAN trait row with name, description, score, and filled bar */
-function TraitBar({
-  traitKey,
-  score,
-  isPrimary,
-}: {
-  traitKey: TraitKey
-  score: number
-  isPrimary: boolean
-}) {
-  const band = scoreBand(score)
-  const barColor = isPrimary ? BRAND_COLORS.primary : BRAND_COLORS.muted
-  // Clamp score to 0–100 for bar width safety
-  const clampedScore = Math.min(100, Math.max(0, score))
-
-  return (
-    <View style={styles.traitRow}>
-      {/* Top row — name + score */}
-      <View style={styles.traitTopRow}>
-        <View style={styles.traitNameBlock}>
-          {/* Initial badge + trait name */}
-          <View style={styles.traitInitialRow}>
-            <View
-              style={[
-                styles.traitInitialBadge,
-                {
-                  backgroundColor: isPrimary
-                    ? BRAND_COLORS.primary
-                    : BRAND_COLORS.muted,
-                },
-              ]}
-            >
-              <Text style={styles.traitInitialText}>{traitKey}</Text>
-            </View>
-            <Text style={styles.traitName}>{TRAIT_LABELS[traitKey]}</Text>
-          </View>
-          {/* Description below name */}
-          <Text style={styles.traitDesc}>
-            {TRAIT_DESCRIPTIONS[traitKey]}
-          </Text>
-        </View>
-
-        {/* Score + band label */}
-        <View style={styles.traitScoreBlock}>
-          <Text style={styles.traitScoreValue}>{clampedScore}</Text>
-          <Text style={[styles.traitScoreBand, { color: band.color }]}>
-            {band.label}
-          </Text>
-        </View>
-      </View>
-
-      {/* Bar track + fill */}
-      <View style={styles.barTrack}>
-        <View
-          style={[
-            styles.barFill,
-            {
-              width: `${clampedScore}%`,
-              backgroundColor: barColor,
-            },
-          ]}
-        />
-      </View>
-    </View>
-  )
-}
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -353,100 +293,129 @@ export function PersonalityPage({ data }: PersonalityPageProps) {
   return (
     <Page size="A4" style={styles.page}>
 
-      {/* 1 — Blue header strip */}
-      <View style={styles.headerStrip}>
-        <View style={styles.headerLeft}>
-          <Text style={styles.pageLabel}>Section 01</Text>
-          <Text style={styles.pageTitle}>Personality Profile</Text>
-        </View>
-        <Text style={styles.pageNumber}>2 / 8</Text>
+      {/* Page header */}
+      <View style={styles.pageHeader}>
+        <Text style={styles.pageTitle}>Personality Profile</Text>
+        <Text style={styles.pageNumber}>Page 2 of 8</Text>
       </View>
 
-      {/* 2 — Content area */}
-      <View style={styles.contentArea}>
-
-        {/* Null state — module not completed */}
-        {personality === null ? (
-          <View style={styles.notCompletedBox}>
-            <Text style={styles.notCompletedText}>
-              The Personality assessment has not been completed yet.{'\n'}
-              Complete the module on SOLVO to unlock this section.
+      {/* Null state */}
+      {personality === null ? (
+        <View style={styles.nullContainer}>
+          <Text style={styles.nullText}>
+            Personality assessment not completed.
+          </Text>
+        </View>
+      ) : (
+        <>
+          {/* Primary trait highlight box */}
+          <View style={styles.primaryTraitBox}>
+            <Text style={styles.primaryTraitLabel}>Your Dominant Trait</Text>
+            <Text style={styles.primaryTraitName}>
+              {TRAIT_LABELS[personality.primary_trait] ?? personality.primary_trait}
+            </Text>
+            <Text style={styles.primaryTraitDesc}>
+              {TRAIT_DESCRIPTIONS[personality.primary_trait] ?? ''}
             </Text>
           </View>
-        ) : (
-          <>
-            {/* Primary trait highlight card */}
-            <View style={styles.primaryCard}>
-              <Text style={styles.primaryCardLabel}>Your Primary Trait</Text>
-              <View style={styles.primaryCardTraitRow}>
-                <Text style={styles.primaryCardInitial}>
-                  {personality.primary_trait}
+
+          {/* Section label */}
+          <Text style={styles.sectionLabel}>All Five Traits</Text>
+
+          {/* Five trait bars */}
+          {TRAIT_KEYS.map((key) => {
+            const score = personality[key]
+            const clampedScore = Math.min(100, Math.max(0, score))
+            return (
+              <View key={key} style={styles.traitRow}>
+                {/* Label column */}
+                <View style={styles.traitLabelCol}>
+                  <Text style={styles.traitName}>{TRAIT_LABELS[key]}</Text>
+                  <Text style={styles.traitDesc}>{TRAIT_DESCRIPTIONS[key]}</Text>
+                </View>
+
+                {/* Bar column */}
+                <View style={styles.traitBarCol}>
+                  <View style={styles.traitBarBg}>
+                    <View
+                      style={[
+                        styles.traitBarFill,
+                        {
+                          width: clampedScore + '%',
+                          backgroundColor: TRAIT_BAR_COLORS[key],
+                        },
+                      ]}
+                    />
+                  </View>
+                </View>
+
+                {/* Score */}
+                <Text style={styles.traitScore}>{clampedScore}%</Text>
+              </View>
+            )
+          })}
+
+          {/* Interpretation box */}
+          {(() => {
+            // Find primary + secondary trait keys by score
+            const sorted = [...TRAIT_KEYS].sort(
+              (a, b) => personality[b] - personality[a],
+            )
+            const primary = sorted[0]!
+            const secondary = sorted[1]!
+            const text =
+              getInterpretation(primary, personality[primary]) +
+              ' ' +
+              getInterpretation(secondary, personality[secondary])
+
+            return (
+              <View style={styles.interpretationBox}>
+                <Text style={styles.interpretationTitle}>
+                  What this means for your career
                 </Text>
-                <Text style={styles.primaryCardName}>
-                  {TRAIT_LABELS[personality.primary_trait] ??
-                    personality.primary_trait}
-                </Text>
+                <Text style={styles.interpretationText}>{text}</Text>
               </View>
-              <Text style={styles.primaryCardDesc}>
-                {TRAIT_DESCRIPTIONS[personality.primary_trait] ?? ''}
-              </Text>
-            </View>
+            )
+          })()}
 
-            {/* Section heading */}
-            <Text style={styles.sectionHeading}>Your OCEAN Scores</Text>
+          {/* Strengths + growth row */}
+          {(() => {
+            const scores = {
+              O: personality.O,
+              C: personality.C,
+              E: personality.E,
+              A: personality.A,
+              N: personality.N,
+            }
+            const strengths = getStrengths(scores)
+            const growth = getGrowthAreas(scores)
 
-            {/* Five trait bars */}
-            {TRAIT_KEYS.map((key, index) => (
-              <View key={key}>
-                <TraitBar
-                  traitKey={key}
-                  score={personality[key]}
-                  isPrimary={key === personality.primary_trait}
-                />
-                {/* Divider between bars, not after the last one */}
-                {index < TRAIT_KEYS.length - 1 && (
-                  <View style={styles.divider} />
-                )}
+            return (
+              <View style={styles.strengthsRow}>
+                {/* Strengths */}
+                <View style={styles.strengthBox}>
+                  <Text style={styles.strengthLabel}>Key Strengths</Text>
+                  {strengths.map((item) => (
+                    <Text key={item} style={styles.strengthItem}>
+                      {'• ' + item}
+                    </Text>
+                  ))}
+                </View>
+
+                {/* Growth areas */}
+                <View style={styles.growthBox}>
+                  <Text style={styles.growthLabel}>Growth Areas</Text>
+                  {growth.map((item) => (
+                    <Text key={item} style={styles.growthItem}>
+                      {'• ' + item}
+                    </Text>
+                  ))}
+                </View>
               </View>
-            ))}
-
-            {/* Score band legend */}
-            <View style={styles.legendRow}>
-              <View style={styles.legendItem}>
-                <View
-                  style={[
-                    styles.legendDot,
-                    { backgroundColor: BRAND_COLORS.success },
-                  ]}
-                />
-                <Text style={styles.legendLabel}>High (70–100)</Text>
-              </View>
-              <View style={styles.legendItem}>
-                <View
-                  style={[
-                    styles.legendDot,
-                    { backgroundColor: BRAND_COLORS.warning },
-                  ]}
-                />
-                <Text style={styles.legendLabel}>Moderate (40–69)</Text>
-              </View>
-              <View style={styles.legendItem}>
-                <View
-                  style={[
-                    styles.legendDot,
-                    { backgroundColor: BRAND_COLORS.secondary },
-                  ]}
-                />
-                <Text style={styles.legendLabel}>Low (0–39)</Text>
-              </View>
-            </View>
-          </>
-        )}
-
-      </View>
-
-      {/* 3 — Orange footer strip (absolute) */}
-      <View style={styles.footerStrip} />
+            )
+          })()}
+        </>
+      )}
 
     </Page>
   )
