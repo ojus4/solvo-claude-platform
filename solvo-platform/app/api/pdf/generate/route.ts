@@ -31,6 +31,7 @@ interface ShapedResults {
   personality: ModuleResult | null;
   interest: ModuleResult | null;
   aptitude: ModuleResult | null;
+  eq: ModuleResult | null; // added new 'eq' module to shaped results
 }
 
 interface AssessmentSession {
@@ -38,6 +39,7 @@ interface AssessmentSession {
   personality_done: boolean;
   interest_done: boolean;
   aptitude_done: boolean;
+  eq_done: boolean; // added new 'eq' module to assessment session
   recommended_careers: string[] | null;
   completed_at: string | null;
   pdf_generated: boolean;
@@ -69,6 +71,7 @@ function shapeResults(rows: PsychResultRow[]): ShapedResults {
     personality: map["personality"] ?? null,
     interest: map["interest"] ?? null,
     aptitude: map["aptitude"] ?? null,
+    eq: map["eq"] ?? null, // added new 'eq' module to shaped results
   };
 }
 
@@ -153,7 +156,7 @@ export async function POST(request: NextRequest) {
     const { data: sessionData, error: sessionError } = await supabaseAdmin
       .from("assessment_sessions")
       .select(
-        "id, personality_done, interest_done, aptitude_done, recommended_careers, completed_at, pdf_generated, pdf_url"
+        "id, personality_done, interest_done, aptitude_done, eq_done, recommended_careers, completed_at, pdf_generated, pdf_url"
       )
       .eq("user_id", userId)
       .order("started_at", { ascending: false })
@@ -172,17 +175,18 @@ export async function POST(request: NextRequest) {
 
     const session = sessionData;
 
-    // ── 5. Verify all three modules are complete ──────────────────────────
+    // ── 5. Verify all four modules are complete ──────────────────────────
     if (
       !session.personality_done ||
       !session.interest_done ||
-      !session.aptitude_done
+      !session.aptitude_done ||
+      !session.eq_done
     ) {
       return Response.json(
         {
           success: false,
           error:
-            "Assessment incomplete. Complete all three modules to generate your report.",
+            "Assessment incomplete. Complete all four modules to generate your report.",
         },
         { status: 400 }
       );
@@ -258,6 +262,7 @@ export async function POST(request: NextRequest) {
         personality: results.personality,
         interest: results.interest,
         aptitude: results.aptitude,
+        eq: results.eq, // included 'eq' results in the PDF data payload
       },
       recommended_careers: recommendedCareers,
       career_focus: careerFocus,

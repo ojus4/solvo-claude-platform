@@ -12,16 +12,33 @@ import type { PdfReportData, PdfCareer } from '@/lib/pdf/report-data'
 
 // ─── Dynamic imports (SSR disabled — react-pdf is browser-only) ───────────────
 
-const PDFDownloadLink = dynamic(
-  () => import('@react-pdf/renderer').then((mod) => mod.PDFDownloadLink),
-  { ssr: false, loading: () => <div className="text-sm text-gray-500">Loading...</div> },
+// const PDFDownloadLink = dynamic(
+  // () => import('@react-pdf/renderer').then((mod) => mod.PDFDownloadLink),
+  // { ssr: false, loading: () => <div className="text-sm text-gray-500">Loading...</div> },
+//)
+
+// const ReportDocument = dynamic(
+  // () =>
+    // import('@/components/pdf/ReportDocument').then((mod) => mod.ReportDocument),
+  // { ssr: false },
+//)
+
+// ADD THIS INSTEAD:
+const PdfDownloadButton = dynamic(
+  () => import('@/components/pdf/PdfDownloadButton'),
+  { 
+    ssr: false,
+    loading: () => (
+      <button
+        className="w-full bg-blue-600 text-white font-bold py-4 px-8 rounded-xl text-lg opacity-50"
+        disabled
+      >
+        Loading PDF generator...
+      </button>
+    )
+  }
 )
 
-const ReportDocument = dynamic(
-  () =>
-    import('@/components/pdf/ReportDocument').then((mod) => mod.ReportDocument),
-  { ssr: false },
-)
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -320,21 +337,8 @@ export default function ResultsPage() {
 
               {/* PDFDownloadLink — browser-only via dynamic import */}
               {pdfReady && (
-                <PDFDownloadLink
-                  document={<ReportDocument data={reportData} />}
-                  fileName={`SOLVO-Report-${reportData.user.report_id}.pdf`}
-                >
-                  {({ loading: pdfLoading }: { loading: boolean }) => (
-                    <button
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-xl text-lg transition-colors disabled:opacity-50"
-                      disabled={pdfLoading}
-                    >
-                      {pdfLoading
-                        ? 'Generating PDF...'
-                        : 'Download Report (PDF)'}
-                    </button>
-                  )}
-                </PDFDownloadLink>
+                // <{/* ADD THIS INSTEAD: */}
+                <PdfDownloadButton data={reportData} />
               )}
 
               <div className="mt-4 space-y-1">
