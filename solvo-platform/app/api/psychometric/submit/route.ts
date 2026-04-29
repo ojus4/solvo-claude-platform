@@ -280,34 +280,88 @@ export async function POST(request: NextRequest) {
         return Response.json({ success: true, resultId });
       }
 
-      // ── 9. Check if all three modules are now complete ────────────────────
-      const { data: sessionRow, error: sessionFetchError } = await admin
+      // ── 9. Check if all 4 modules are now complete ────────────────────────
+      const { data: sessionRow, error: sessionFetchError } = await supabaseAdmin
         .from('assessment_sessions')
-        .select('personality_done, interest_done, aptitude_done, eq_done')
+        .select('personality_done, interest_done, aptitude_done, eq_done, completed_at')
         .eq('user_id', userId)
         .single();
 
-      if (sessionFetchError) {
-        console.error('[psychometric/submit] session fetch error:', sessionFetchError);
-        return Response.json({ success: true, resultId });
-      }
+      if (!sessionFetchError && sessionRow) {
+        const allDone =
+          sessionRow.personality_done &&
+          sessionRow.interest_done &&
+          sessionRow.aptitude_done &&
+          sessionRow.eq_done;
 
-      const allDone =
-        sessionRow.personality_done === true &&
-        sessionRow.interest_done === true &&
-        sessionRow.aptitude_done === true &&
-        sessionRow.eq_done === true; // include new module in completion check
+        if (allDone && !sessionRow.completed_at) {
+          // ── 9a. Fetch all psych_results to run career recommender ─────────────
+          const { data: allResults } = await supabaseAdmin
+            .from('psych_results')
+            .select('module, scores, primary_type')
+            .eq('user_id', userId);
 
-      // ── 10. If all done, stamp completed_at ───────────────────────────────
-      if (allDone) {
-        const { error: completeError } = await admin
-          .from('assessment_sessions')
-          .update({ completed_at: new Date().toISOString() })
-          .eq('user_id', userId);
+          let recommendedCareers: string[] = [];
 
-        if (completeError) {
-          console.error('[psychometric/submit] completed_at update error:', completeError);
-          // Non-fatal — assessment is still logically complete
+          if (allResults && allResults.length >= 3) {
+            try {
+              // Import scoring functions server-side
+              const { calculateBigFive } = await import('@/lib/scoring/calculate-big-five');
+              const { calculateRiasec } = await import('@/lib/scoring/calculate-riasec');
+              const { calculateAptitude } = await import('@/lib/scoring/calculate-aptitude');
+              const { generateRecommendations } = await import('@/lib/scoring/career-recommender');
+
+              // Find each module's saved raw_answers
+              const { data: rawResults } = await supabaseAdmin
+                .from('psych_results')
+                .select('module, raw_answers')
+                .eq('user_id', userId);
+
+              const rawMap: Record<string, Record<string, unknown>> = {};
+              rawResults?.forEach((r) => {
+                rawMap[r.module] = r.raw_answers as Record<string, unknown>;
+              });
+
+              // Re-calculate scores from raw_answers for the recommender
+              const bigFiveScores = rawMap['personality']
+                ? calculateBigFive(rawMap['personality'] as any)
+                : null;
+
+              const riasecScores = rawMap['interest']
+                ? calculateRiasec(rawMap['interest'] as any)
+                : null;
+
+              const aptitudeScores = rawMap['aptitude']
+                ? calculateAptitude(rawMap['aptitude'] as any)
+                : null;
+
+              if (bigFiveScores && riasecScores && aptitudeScores) {
+                const recommendations = generateRecommendations(
+                  bigFiveScores,
+                  riasecScores,
+                  aptitudeScores,
+                );
+                recommendedCareers = recommendations.map((r) => r.id);
+              }
+            } catch (err) {
+              console.error('[psychometric/submit] Career recommender error:', err);
+              // Non-fatal — stamp completion without careers
+            }
+          }
+
+          // ── 9b. Stamp completed_at and save recommended_careers ───────────────
+          await supabaseAdmin
+            .from('assessment_sessions')
+            .update({
+              completed_at: new Date().toISOString(),
+              recommended_careers: recommendedCareers,
+            })
+            .eq('user_id', userId);
+
+          console.log(
+            `[psychometric/submit] Assessment complete for ${userId}. ` +
+            `Recommended careers: ${recommendedCareers.join(', ')}`
+          );
         }
       }
     }
